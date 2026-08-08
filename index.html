@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/learn-tajweed/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#f7f6f1" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#101613" media="(prefers-color-scheme: dark)" />
+    <meta
+      name="description"
+      content="تعلَّم أحكام التجويد برواية حفص عن عاصم خطوةً بخطوة، بلغةٍ بسيطةٍ وأمثلةٍ من القرآن الكريم. دليلٌ مجانيٌّ مرتَّبٌ من الصفر إلى إتقان التلاوة."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ar_AR" />
+    <meta property="og:title" content="تعلَّم التجويد · دليلٌ عمليٌّ لأحكام تلاوة القرآن" />
+    <meta
+      property="og:description"
+      content="أحكام التجويد مرتَّبةً من الأسهل إلى الأصعب، بأمثلةٍ من القرآن الكريم وتمارينَ بعد كلّ درس."
+    />
+    <title>تعلَّم التجويد · دليلٌ عمليٌّ لأحكام تلاوة القرآن</title>
+    <script>
+      // Apply the saved theme and the rule-colour choice before the first paint,
+      // so there is no flash of the wrong colours. The React side reads both
+      // back from here (src/hooks/useTheme.ts and src/lib/settings.ts).
+      ;(function () {
+        try {
+          var saved = localStorage.getItem('tajweed-theme')
+          var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+          var isDark = saved ? saved === 'dark' : prefersDark
+          document.documentElement.classList.toggle('dark', isDark)
+          var plain = localStorage.getItem('tajweed-rule-colours') === 'off'
+          document.documentElement.classList.toggle('plain-rules', plain)
+        } catch (e) {
+          /* private browsing: fall back to the light theme with colours on */
+        }
+      })()
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

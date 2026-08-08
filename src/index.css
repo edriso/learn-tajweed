@@ -1,0 +1,396 @@
+@import 'tailwindcss';
+
+/* Self-hosted fonts: no external CDN, so the site loads fast and works offline.
+   - Cairo  : the interface and lesson prose (clean, modern Naskh for MSA).
+   - Amiri Quran : Quranic text only. It is drawn for the Uthmani script and
+     renders the small alef, the madd sign and the sukun marks correctly. */
+@import '@fontsource-variable/cairo/wght.css';
+@import '@fontsource/amiri-quran/arabic-400.css';
+
+/* Dark mode is a `dark` class on <html>, set before first paint by the inline
+   script in index.html and toggled by src/hooks/useTheme.ts. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: 'Cairo Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  /* Quranic text. Never use this font for interface text: it has no bold. */
+  --font-quran: 'Amiri Quran', 'Cairo Variable', serif;
+
+  /* ---------------------------------------------------------------------
+     Brand green. Calm and deep, the green of a mushaf cover rather than a
+     neon highlight. Change the hue (158) here to re-colour the whole site.
+     --------------------------------------------------------------------- */
+  --color-green-50: oklch(0.972 0.018 158);
+  --color-green-100: oklch(0.941 0.038 158);
+  --color-green-200: oklch(0.884 0.062 158);
+  --color-green-300: oklch(0.806 0.088 158);
+  --color-green-400: oklch(0.714 0.106 158);
+  --color-green-500: oklch(0.628 0.113 158);
+  --color-green-600: oklch(0.536 0.104 158);
+  --color-green-700: oklch(0.447 0.086 158);
+  --color-green-800: oklch(0.369 0.068 158);
+  --color-green-900: oklch(0.302 0.052 158);
+  --color-green-950: oklch(0.196 0.038 158);
+
+  /* Illumination gold, used sparingly the way a mushaf uses it: borders,
+     ayah numbers, small marks. Never for large areas of text. */
+  --color-gold-100: oklch(0.955 0.035 84);
+  --color-gold-200: oklch(0.905 0.062 84);
+  --color-gold-300: oklch(0.845 0.088 84);
+  --color-gold-400: oklch(0.786 0.104 84);
+  --color-gold-500: oklch(0.716 0.112 84);
+  --color-gold-600: oklch(0.618 0.101 84);
+  --color-gold-700: oklch(0.512 0.083 84);
+  --color-gold-800: oklch(0.412 0.065 84);
+  --color-gold-900: oklch(0.328 0.05 84);
+
+  /* Warm neutral ("ink on paper") instead of a cold grey, so the light theme
+     reads like a printed page and the dark theme stays soft on the eyes. */
+  --color-ink-50: oklch(0.984 0.004 92);
+  --color-ink-100: oklch(0.964 0.006 92);
+  --color-ink-200: oklch(0.922 0.007 92);
+  --color-ink-300: oklch(0.862 0.008 92);
+  --color-ink-400: oklch(0.716 0.009 92);
+  --color-ink-500: oklch(0.582 0.009 92);
+  --color-ink-600: oklch(0.474 0.009 92);
+  --color-ink-700: oklch(0.386 0.009 92);
+  --color-ink-800: oklch(0.284 0.01 150);
+  --color-ink-900: oklch(0.218 0.012 156);
+  --color-ink-950: oklch(0.164 0.012 158);
+
+  /* ---------------------------------------------------------------------
+     Tajweed rule colours.
+     These are OUR teaching convention, not part of the revelation: colouring
+     the Qur'an is a modern study aid. Every colour is used with a text label
+     next to it, so the lesson still works for colour-blind readers and in
+     print. Each rule has a light-theme and a dark-theme value picked to stay
+     readable on both backgrounds.
+     --------------------------------------------------------------------- */
+  --color-rule-ghunnah: oklch(0.5 0.13 158); /* غنّة: green */
+  --color-rule-ghunnah-dark: oklch(0.78 0.13 158);
+  --color-rule-ikhfa: oklch(0.5 0.16 300); /* إخفاء: violet */
+  --color-rule-ikhfa-dark: oklch(0.78 0.13 300);
+  --color-rule-idgham: oklch(0.5 0.13 25); /* إدغام: red */
+  --color-rule-idgham-dark: oklch(0.76 0.13 25);
+  --color-rule-iqlab: oklch(0.5 0.14 245); /* إقلاب: blue */
+  --color-rule-iqlab-dark: oklch(0.78 0.12 245);
+  --color-rule-izhar: oklch(0.45 0.02 92); /* إظهار: plain ink, no colour */
+  --color-rule-izhar-dark: oklch(0.8 0.02 92);
+  --color-rule-madd: oklch(0.52 0.14 55); /* مدّ: orange */
+  --color-rule-madd-dark: oklch(0.8 0.12 65);
+  --color-rule-qalqalah: oklch(0.52 0.11 200); /* قلقلة: teal */
+  --color-rule-qalqalah-dark: oklch(0.8 0.1 200);
+  --color-rule-tafkheem: oklch(0.48 0.1 330); /* تفخيم: plum */
+  --color-rule-tafkheem-dark: oklch(0.79 0.1 330);
+
+  --shadow-soft: 0 1px 2px oklch(0.2 0.02 158 / 0.05), 0 10px 26px -14px oklch(0.2 0.02 158 / 0.22);
+  --shadow-lift: 0 2px 4px oklch(0.2 0.02 158 / 0.06), 0 22px 44px -22px oklch(0.35 0.08 158 / 0.4);
+
+  --radius-card: 1rem;
+}
+
+@layer base {
+  html {
+    /* Keeps anchor targets clear of the sticky header. */
+    scroll-padding-top: 5.5rem;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--color-ink-50);
+    color: var(--color-ink-700);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Arabic needs a little more room between lines than Latin. */
+    line-height: 1.85;
+  }
+
+  .dark body {
+    background-color: var(--color-ink-950);
+    color: var(--color-ink-300);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    color: var(--color-ink-900);
+    font-weight: 700;
+    line-height: 1.5;
+    text-wrap: balance;
+  }
+
+  .dark h1,
+  .dark h2,
+  .dark h3,
+  .dark h4 {
+    color: var(--color-ink-50);
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* Latin fragments inside Arabic text (URLs, "Hafs", numbers) keep their own
+     direction so they do not scramble the surrounding sentence. */
+  :is(code, kbd, samp) {
+    direction: ltr;
+    unicode-bidi: isolate;
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--color-green-500) 26%, transparent);
+    color: inherit;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-green-600);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  .dark :focus-visible {
+    outline-color: var(--color-green-400);
+  }
+}
+
+@layer components {
+  /* --------------------------------------------------------------------
+     Qur'anic text.
+     `dir="rtl"` is inherited from <html>; the font and the extra line height
+     are what make the Uthmani marks readable at small sizes.
+     -------------------------------------------------------------------- */
+  .quran {
+    font-family: var(--font-quran);
+    line-height: 2.3;
+    font-size: 1.6rem;
+    color: var(--color-ink-900);
+    /* Amiri Quran ships no bold; asking for one would fake it and blur the
+       diacritics. */
+    font-weight: 400;
+    font-synthesis: none;
+  }
+
+  .dark .quran {
+    color: var(--color-ink-50);
+  }
+
+  /* A highlighted stretch of a verse: the letters the current rule applies to. */
+  .quran mark {
+    background: transparent;
+    color: inherit;
+    padding-inline: 0.08em;
+    border-radius: 0.25rem;
+  }
+
+  /*
+   * Rule colours turned off from the settings menu. Colouring the Qur'an is a
+   * modern study aid and some readers prefer to do without it, so the highlight
+   * survives as a dotted underline and only the colour goes. The rule's name is
+   * printed next to every example either way, so nothing is lost.
+   */
+  .plain-rules .quran mark {
+    color: inherit !important;
+    text-decoration: underline dotted;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.5em;
+  }
+
+  /* --------------------------------------------------------------------
+     Lesson prose. Everything inside <article class="prose"> is Markdown
+     written by a lesson author, so the rules here have to cover every
+     element Markdown can produce.
+     -------------------------------------------------------------------- */
+  .prose {
+    font-size: 1.075rem;
+  }
+
+  .prose > h2 {
+    margin-block: 3rem 1rem;
+    scroll-margin-top: 6rem;
+    font-size: 1.6rem;
+    /* A gold rule under section headings, the way a printed page marks them. */
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--color-gold-200);
+  }
+
+  .dark .prose > h2 {
+    border-bottom-color: color-mix(in oklab, var(--color-gold-800) 60%, transparent);
+  }
+
+  .prose h3 {
+    margin-block: 2rem 0.75rem;
+    font-size: 1.25rem;
+  }
+
+  .prose h4 {
+    margin-block: 1.5rem 0.5rem;
+    font-size: 1.075rem;
+  }
+
+  .prose p,
+  .callout-body p {
+    margin-block: 1rem;
+  }
+
+  .prose > :first-child,
+  .callout-body > :first-child {
+    margin-block-start: 0;
+  }
+
+  .prose > :last-child,
+  .callout-body > :last-child {
+    margin-block-end: 0;
+  }
+
+  .prose a,
+  .callout-body a {
+    font-weight: 600;
+    color: var(--color-green-700);
+    text-decoration: underline;
+    text-decoration-color: color-mix(in oklab, var(--color-green-500) 45%, transparent);
+    text-underline-offset: 5px;
+    transition: text-decoration-color 150ms;
+  }
+
+  .prose a:hover,
+  .callout-body a:hover {
+    text-decoration-color: var(--color-green-500);
+  }
+
+  .dark .prose a,
+  .dark .callout-body a {
+    color: var(--color-green-400);
+  }
+
+  .prose strong,
+  .callout-body strong {
+    font-weight: 700;
+    color: var(--color-ink-900);
+  }
+
+  .dark .prose strong,
+  .dark .callout-body strong {
+    color: var(--color-ink-50);
+  }
+
+  .prose ul,
+  .callout-body ul {
+    margin-block: 1rem;
+    list-style: disc;
+    padding-inline-start: 1.5rem;
+  }
+
+  .prose ol,
+  .callout-body ol {
+    margin-block: 1rem;
+    list-style: arabic-indic;
+    padding-inline-start: 1.75rem;
+  }
+
+  .prose li,
+  .callout-body li {
+    margin-block: 0.375rem;
+  }
+
+  .prose li::marker,
+  .callout-body li::marker {
+    color: var(--color-green-600);
+  }
+
+  .dark .prose li::marker,
+  .dark .callout-body li::marker {
+    color: var(--color-green-400);
+  }
+
+  .prose blockquote {
+    margin-block: 1.75rem;
+    /* Logical properties keep the bar on the correct side in RTL. */
+    border-inline-start: 4px solid var(--color-green-500);
+    border-start-end-radius: 0.75rem;
+    border-end-end-radius: 0.75rem;
+    background: color-mix(in oklab, var(--color-green-500) 7%, transparent);
+    padding: 0.75rem 1.25rem;
+  }
+
+  .prose code,
+  .callout-body code {
+    border-radius: 0.3rem;
+    background: var(--color-ink-100);
+    padding: 0.1rem 0.35rem;
+    font-size: 0.9em;
+  }
+
+  .dark .prose code,
+  .dark .callout-body code {
+    background: var(--color-ink-800);
+  }
+
+  /* Tables are the workhorse of this site: nearly every rule has one. */
+  .prose .table-scroll {
+    margin-block: 1.75rem;
+    overflow-x: auto;
+  }
+
+  .prose table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.975rem;
+  }
+
+  .prose th {
+    border-bottom: 2px solid var(--color-ink-200);
+    padding: 0.6rem 0.75rem;
+    text-align: start;
+    font-weight: 700;
+    color: var(--color-ink-900);
+    white-space: nowrap;
+  }
+
+  .dark .prose th {
+    border-bottom-color: var(--color-ink-700);
+    color: var(--color-ink-50);
+  }
+
+  .prose td {
+    border-bottom: 1px solid var(--color-ink-200);
+    padding: 0.6rem 0.75rem;
+    vertical-align: top;
+  }
+
+  .dark .prose td {
+    border-bottom-color: var(--color-ink-800);
+  }
+
+  .prose tbody tr:hover {
+    background: color-mix(in oklab, var(--color-green-500) 5%, transparent);
+  }
+
+  .prose hr {
+    margin-block: 2.5rem;
+    border-color: var(--color-ink-200);
+  }
+
+  .dark .prose hr {
+    border-color: var(--color-ink-800);
+  }
+}
+
+/* Users who prefer reduced motion get no animation anywhere. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
