@@ -18,13 +18,23 @@ export function Layout() {
    * the page. Focusing `<main>` puts them at the start of the new content, the
    * way a full page load would. Skipped on first render so the entry point is
    * not stolen from the browser.
+   *
+   * `preventScroll` because this moves focus and nothing else — the viewport
+   * belongs to <ScrollRestoration> below. Without it, focus() also scrolls the
+   * element into view, and <main> is nearly as tall as the document, so from
+   * the footer that scroll lands most of the way up the page: 352px on the
+   * curriculum, and 3498px if the footer ever grows past one screen. Today
+   * that is invisible only because restoration runs after this effect and
+   * overwrites it, which is react-router's effect ordering rather than a
+   * promise to us. The back-to-top button had the same line without the guard
+   * and it was a real bug: one click moved the reader partway and stopped.
    */
   useEffect(() => {
     if (firstRender.current) {
       firstRender.current = false
       return
     }
-    mainRef.current?.focus()
+    mainRef.current?.focus({ preventScroll: true })
   }, [pathname])
 
   return (

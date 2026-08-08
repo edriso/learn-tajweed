@@ -180,6 +180,24 @@ Decisions worth keeping:
   on; and `<ScrollRestoration>` needs a `getKey` carrying the path, because saved
   positions outlive the document while every document's first entry is keyed
   `"default"`.
+- **When the code is already deciding where the page sits, `focus()` must pass
+  `preventScroll: true`.** `focus()` does two things: it moves focus, and it scrolls
+  the element into view. That second scroll is instant, so it also *cancels* a smooth
+  scroll already in flight. Both calls that focus `<main>` were bitten. The
+  back-to-top button scrolled smoothly to the top and handed focus over on the next
+  line, killing the animation — `<main>` is nearly as tall as the document, so its
+  scroll-into-view target is a fixed point down by the footer, and the reader was
+  dragged there and left: 5057 → 4705, with only a second click reaching 0. `Layout`
+  does the same on every route change, where it is invisible today only because
+  `<ScrollRestoration>` runs afterwards and overwrites it — react-router's effect
+  ordering, not a promise to us. Grow the footer past one screen and the same call
+  jumps 3498px.
+
+  This is not a blanket ban. The other focus calls — the header toggle, the settings
+  trigger, the transfer confirm button — return focus to a small control that is on
+  screen anyway, and `Quiz`'s retry deliberately *wants* the scroll, since the heading
+  it focuses is where the reader is meant to end up. The guard belongs where the app
+  itself owns the scroll position and focus would fight it.
 - **A stale build must not become a broken link.** Every route past the home page is
   loaded on demand and GitHub Pages keeps only the newest deploy, so a tab left open
   across a deploy asks for a chunk that no longer exists and the import throws. The
