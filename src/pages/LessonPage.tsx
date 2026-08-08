@@ -3,6 +3,7 @@ import { ArrowLeft, ArrowRight, BookOpen, Check, Clock, PlayCircle } from 'lucid
 import { Link, useParams } from 'react-router'
 import { Markdown } from '@/components/content/Markdown'
 import { useProgress } from '@/hooks/useProgress'
+import { getLessonContent } from '@/lib/lesson-content'
 import { getLesson, neighbours } from '@/lib/lessons'
 import { SITE_NAME } from '@/lib/site'
 import { getUnit } from '@/lib/units'
@@ -55,7 +56,7 @@ export function LessonPage() {
         </p>
       </header>
 
-      <Markdown slug={lesson.slug}>{lesson.content}</Markdown>
+      <Markdown slug={lesson.slug}>{getLessonContent(lesson.slug) ?? ''}</Markdown>
 
       {/* ── Watch ────────────────────────────────────────────────────── */}
       {lesson.videos && lesson.videos.length > 0 && (

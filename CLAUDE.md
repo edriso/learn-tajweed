@@ -27,6 +27,7 @@ everything.
 npm run dev          # verify the text, then start the dev server
 npm run build        # verify + tsc + vite build + pre-render every route
 npm run check        # verify + lint + type-check, no build
+npm run og           # regenerate the share card and the PNG icons (needs Chrome)
 npm run quran:find -- "من الصواعق"   # find which verse contains a phrase
 ```
 
@@ -109,6 +110,9 @@ src/
   content/lessons/*.md    THE CONTENT. One file = one lesson, no code change needed.
   content/pages/*.md      the summary sheet and the about page
   content/quran.generated.json   generated, never edit by hand
+  content/lessons.index.json     generated, never edit by hand
+  lib/lessons.ts          lesson metadata: title, unit, order. NO bodies.
+  lib/lesson-content.ts   the lesson bodies. Lazy routes only — see below.
   lib/units.ts            the eleven units in curriculum order
   lib/rules.ts            single source of truth for rule names, colours, definitions
   lib/glossary.ts         terms that are not rule names
@@ -142,6 +146,15 @@ Decisions worth keeping:
   same pass writes `sitemap.xml` and `robots.txt`. If you change the `<head>` in
   `index.html`, that script fails loudly rather than silently shipping 38 pages
   that all claim to be the home page.
+- **Lesson metadata and lesson bodies are separate modules, on purpose.**
+  `lib/lessons.ts` holds only frontmatter, generated into
+  `content/lessons.index.json` by `npm run content:build`. `lib/lesson-content.ts`
+  eagerly imports all thirty-four Markdown files, so **anything that imports it
+  pulls every lesson into its chunk**. Only lazy routes may: the lesson page,
+  and the practice page through `lib/quiz.ts`. The home page importing it once
+  cost 60 KB gzipped on first load — 40% of the entry chunk — to render a list
+  of titles. If you need a lesson's title or unit, use `lessons` from
+  `lib/lessons.ts`.
 - **No backend, no accounts, no analytics.** Progress is `localStorage` only.
 
 ## Adding a rule

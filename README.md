@@ -55,9 +55,10 @@ npm run preview      # serve the production build
 npm run lint         # oxlint
 npm run check        # verify + lint + type-check, without building
 
-npm run quran:build  # regenerate src/content/quran.generated.json (runs automatically)
+npm run content:build # regenerate the verse data and the lesson index (runs automatically)
 npm run quran:fetch  # re-download the corpus from Tanzil and verify its checksum
 npm run quran:find -- "من الصواعق"   # find which verse contains a phrase
+npm run og           # regenerate the share card and PNG icons (needs Chrome)
 ```
 
 ## Add or edit a lesson

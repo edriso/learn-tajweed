@@ -1,4 +1,5 @@
 import { parse } from 'yaml'
+import { getLessonContent } from './lesson-content'
 import { lessons } from './lessons'
 
 export interface QuizQuestion {
@@ -83,7 +84,9 @@ const QUIZ_BLOCK = /```quiz\r?\n([\s\S]*?)```/g
  * questions to keep in sync.
  */
 export const allQuestions: QuizQuestion[] = lessons.flatMap((lesson) => {
-  const matches = [...lesson.content.matchAll(QUIZ_BLOCK)]
+  const content = getLessonContent(lesson.slug)
+  if (!content) return []
+  const matches = [...content.matchAll(QUIZ_BLOCK)]
   return matches.flatMap((match, block) => parseQuiz(match[1], lesson.slug, block).questions)
 })
 

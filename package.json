@@ -4,13 +4,15 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "npm run quran:build && vite",
-    "build": "npm run quran:build && tsc -b && vite build && node scripts/prerender-routes.mjs",
+    "dev": "npm run content:build && vite",
+    "build": "npm run content:build && tsc -b && vite build && node scripts/prerender-routes.mjs",
     "preview": "vite preview",
     "lint": "oxlint",
+    "content:build": "node scripts/build-quran.mjs && node scripts/build-lesson-index.mjs",
     "quran:build": "node scripts/build-quran.mjs",
+    "lessons:index": "node scripts/build-lesson-index.mjs",
     "quran:fetch": "node scripts/fetch-quran.mjs",
-    "check": "npm run quran:build && npm run lint && tsc -b",
+    "check": "npm run content:build && npm run lint && tsc -b",
     "quran:find": "node scripts/find-ayah.mjs",
     "og": "node scripts/build-og-image.mjs"
   },
