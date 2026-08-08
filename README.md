@@ -50,7 +50,7 @@ npm run dev
 Other scripts:
 
 ```bash
-npm run build        # verify the Qur'anic text, type-check, and build to dist/
+npm run build        # verify the text, type-check, build, and pre-render routes
 npm run preview      # serve the production build
 npm run lint         # oxlint
 npm run check        # verify + lint + type-check, without building

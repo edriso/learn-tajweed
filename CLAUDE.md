@@ -25,7 +25,7 @@ everything.
 
 ```bash
 npm run dev          # verify the text, then start the dev server
-npm run build        # verify + tsc + vite build + copy index.html to 404.html
+npm run build        # verify + tsc + vite build + pre-render every route
 npm run check        # verify + lint + type-check, no build
 npm run quran:find -- "من الصواعق"   # find which verse contains a phrase
 ```
@@ -108,8 +108,9 @@ Decisions worth keeping:
 - **Rule colours are a teaching aid, not part of the revelation.** Every colour is always
   accompanied by the rule's name in words, so the page works without colour.
 - **GitHub Pages** serves the site under `/learn-tajweed/`. That is `base` in
-  `vite.config.ts` and flows into the router through `import.meta.env.BASE_URL`. The
-  build copies `index.html` to `404.html` so deep links survive a refresh.
+  `vite.config.ts` and flows into the router through `import.meta.env.BASE_URL`.
+  `scripts/prerender-routes.mjs` then writes a copy of `index.html` at every route,
+  so a deep link answers 200 rather than the 404 a bare SPA fallback would give.
 - **No backend, no accounts, no analytics.** Progress is `localStorage` only.
 
 ## Adding a rule
