@@ -1,7 +1,7 @@
 import { Check, Clock } from 'lucide-react'
 import { Link } from 'react-router'
 import type { Lesson } from '@/lib/lessons'
-import { cn, toArabicDigits } from '@/lib/utils'
+import { cn, countLabel, toArabicDigits } from '@/lib/utils'
 
 export function LessonCard({
   lesson,
@@ -48,7 +48,7 @@ export function LessonCard({
         </p>
         <p className="mt-2 flex items-center gap-1.5 text-xs text-ink-600 dark:text-ink-400">
           <Clock size={13} aria-hidden="true" />
-          نحو {toArabicDigits(lesson.minutes)} دقائق
+          نحو {countLabel(lesson.minutes, ['دقيقةً واحدة', 'دقيقتين', 'دقائق', 'دقيقة'])}
         </p>
       </div>
     </Link>

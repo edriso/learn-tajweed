@@ -48,14 +48,14 @@ export const RULES: readonly Rule[] = [
     id: 'idgham-ghunnah',
     name: 'إدغام بغنّة',
     color: 'ghunnah',
-    short: 'تختفي النون في الحرف الذي بعدها فيصير مشدّدًا، مع بقاء الغنّة حركتين.',
+    short: 'تختفي النون في الحرف الذي بعدها فيصير مشدَّدًا، مع بقاء الغنّة حركتين.',
     lesson: 'idgham-nun',
   },
   {
     id: 'idgham-no-ghunnah',
     name: 'إدغام بغير غنّة',
     color: 'idgham',
-    short: 'تختفي النون في اللام أو الراء فيصير الحرف مشدّدًا، بلا غنّة.',
+    short: 'تختفي النون في اللام أو الراء فيصير الحرف مشدَّدًا، بلا غنّة.',
     lesson: 'idgham-nun',
   },
   {
@@ -85,7 +85,7 @@ export const RULES: readonly Rule[] = [
     id: 'idgham-shafawi',
     name: 'إدغام شفويّ',
     color: 'ghunnah',
-    short: 'ميمٌ ساكنة قبل ميم: تُدغم فيها فتصير ميمًا مشدّدةً بغنّةٍ حركتين.',
+    short: 'ميمٌ ساكنة قبل ميم: تُدغم فيها فتصير ميمًا مشدَّدةً بغنّةٍ حركتين.',
     lesson: 'meem-sakinah',
   },
   {
@@ -97,9 +97,9 @@ export const RULES: readonly Rule[] = [
   },
   {
     id: 'ghunnah',
-    name: 'غنّة مشدّدة',
+    name: 'غنّة مشدَّدة',
     color: 'ghunnah',
-    short: 'كلّ نونٍ أو ميمٍ مشدّدة تُغنّ حركتين، وهي أكمل الغنّات.',
+    short: 'كلّ نونٍ أو ميمٍ مشدَّدة تُغنّ حركتين، وهي أكمل الغنّات.',
     lesson: 'ghunnah',
   },
 
@@ -233,7 +233,7 @@ export const RULES: readonly Rule[] = [
     id: 'idgham-mutaqaribain',
     name: 'إدغام متقاربين',
     color: 'idgham',
-    short: 'حرفان تقاربا مخرجًا وصفة، ولحفصٍ فيهما موضعان فقط.',
+    short: 'حرفان تقاربا مخرجًا وصفة، ولحفصٍ فيهما نوعان فقط.',
     lesson: 'mutamathilain',
   },
 

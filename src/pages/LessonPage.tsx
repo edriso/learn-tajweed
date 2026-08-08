@@ -7,7 +7,7 @@ import { getLessonContent } from '@/lib/lesson-content'
 import { getLesson, neighbours } from '@/lib/lessons'
 import { SITE_NAME } from '@/lib/site'
 import { getUnit } from '@/lib/units'
-import { cn, toArabicDigits } from '@/lib/utils'
+import { cn, countLabel } from '@/lib/utils'
 import { NotFound } from './NotFound'
 
 export function LessonPage() {
@@ -52,7 +52,7 @@ export function LessonPage() {
         </p>
         <p className="mt-4 flex items-center gap-1.5 text-sm text-ink-600 dark:text-ink-400">
           <Clock size={14} aria-hidden="true" />
-          نحو {toArabicDigits(lesson.minutes)} دقائق للقراءة
+          نحو {countLabel(lesson.minutes, ['دقيقةً واحدة', 'دقيقتين', 'دقائق', 'دقيقة'])} للقراءة
         </p>
       </header>
 

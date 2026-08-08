@@ -56,7 +56,7 @@ export function Header() {
           <span className="text-lg">تعلَّم التجويد</span>
         </Link>
 
-        <nav aria-label="التنقّل الرئيسي" className="hidden items-center gap-1 md:flex">
+        <nav aria-label="التنقّل الرئيسيّ" className="hidden items-center gap-1 md:flex">
           {NAV.map((item) => (
             <NavLink key={item.to} to={item.to} end={item.end} className={navClasses}>
               {item.label}
@@ -69,12 +69,12 @@ export function Header() {
             href={REPO_URL}
             target="_blank"
             rel="noreferrer"
-            title="الشيفرة المصدرية"
+            title="الشيفرة المصدريّة"
             className="hidden rounded-full p-2.5 text-ink-600 transition hover:bg-ink-100 hover:text-ink-900 sm:block dark:text-ink-400 dark:hover:bg-ink-800 dark:hover:text-ink-50"
           >
             <GitHubIcon size={18} />
             <span className="sr-only">
-              الشيفرة المصدرية على <span lang="en">GitHub</span>
+              الشيفرة المصدريّة على <span lang="en">GitHub</span>
             </span>
           </a>
           <SettingsMenu />
@@ -95,7 +95,7 @@ export function Header() {
       {open && (
         <nav
           id="mobile-nav"
-          aria-label="التنقّل الرئيسي"
+          aria-label="التنقّل الرئيسيّ"
           className="border-t border-ink-200 px-4 py-3 md:hidden dark:border-ink-800"
         >
           <ul role="list" className="mx-auto flex max-w-4xl flex-col gap-1">

@@ -7,7 +7,7 @@ import { useProgress } from '@/hooks/useProgress'
 import { lessons, lessonsOfUnit } from '@/lib/lessons'
 import { RIWAYAH } from '@/lib/site'
 import { UNITS } from '@/lib/units'
-import { toArabicDigits } from '@/lib/utils'
+import { countLabel, toArabicDigits } from '@/lib/utils'
 
 const HOW_TO_USE = [
   {
@@ -66,7 +66,7 @@ export function Home() {
         </div>
 
         <p className="mt-5 text-sm text-ink-600 dark:text-ink-400">
-          {toArabicDigits(total)} درسًا في {toArabicDigits(UNITS.length)} وحدات · مجّانيّ
+          {toArabicDigits(total)} درسًا في {countLabel(UNITS.length, ['وحدةٍ واحدة', 'وحدتين', 'وحدات', 'وحدة'])} · مجّانيّ
           بالكامل · بلا حسابٍ ولا إعلانات
         </p>
       </section>

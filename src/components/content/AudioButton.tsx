@@ -69,7 +69,7 @@ export function AudioButton({ ayah, className }: { ayah: QuranAyah; className?: 
         ? 'جارٍ تحميل التلاوة'
         : state === 'playing'
           ? 'إيقاف التلاوة'
-          : `استمع للآية بصوت ${reciterName}`
+          : `استمِع إلى الآية بصوت ${reciterName}`
 
   /**
    * Changing `aria-label` on a button that already has focus is not reliably

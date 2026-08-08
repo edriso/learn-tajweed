@@ -657,18 +657,6 @@ const baseLetters = (word) => word.replace(/[^\u0621-\u064A\u0671]/g, '')
  */
 const QUOTED = /«([^«»]{2,})»/g
 
-/** Every verse as a skeleton, so a quoted phrase can be found anywhere. */
-const haystacks = [...verses.values()].map((verse) => skeleton(verse, 'keep').text)
-
-function isInMushaf(phrase) {
-  return queryForms(phrase, 'keep').some((needle) =>
-    haystacks.some((hay) => {
-      const at = hay.indexOf(needle)
-      return at !== -1 && onWordBoundary(hay, at, needle.length)
-    }),
-  )
-}
-
 for (const path of sourceFiles) {
   const raw = await readFile(path, 'utf8')
   const where = relative(ROOT, path)
