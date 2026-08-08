@@ -337,7 +337,9 @@ function render(route) {
   )
 
   const crumbs = [{ name: SITE_NAME, item: `${ORIGIN}${BASE}` }]
-  if (route.unit) crumbs.push({ name: route.unit })
+  // Three units are named after their one lesson (القلقلة, الوقف والابتداء,
+  // المتماثلان…), and repeating the name would render as «… › القلقلة › القلقلة».
+  if (route.unit && route.unit !== title) crumbs.push({ name: route.unit })
   crumbs.push({ name: title, item: url })
 
   const ld = jsonLd({
