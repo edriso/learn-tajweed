@@ -135,7 +135,13 @@ Decisions worth keeping:
 - **GitHub Pages** serves the site under `/learn-tajweed/`. That is `base` in
   `vite.config.ts` and flows into the router through `import.meta.env.BASE_URL`.
   `scripts/prerender-routes.mjs` then writes a copy of `index.html` at every route,
-  so a deep link answers 200 rather than the 404 a bare SPA fallback would give.
+  so a deep link answers 200 rather than the 404 a bare SPA fallback would give. It
+  also rewrites each copy's `<title>`, description, Open Graph tags and canonical
+  from that lesson's own frontmatter, because the crawlers behind a WhatsApp or
+  Telegram link preview do not run the JavaScript that sets `document.title`. The
+  same pass writes `sitemap.xml` and `robots.txt`. If you change the `<head>` in
+  `index.html`, that script fails loudly rather than silently shipping 38 pages
+  that all claim to be the home page.
 - **No backend, no accounts, no analytics.** Progress is `localStorage` only.
 
 ## Adding a rule
