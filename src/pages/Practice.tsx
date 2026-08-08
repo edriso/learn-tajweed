@@ -34,6 +34,17 @@ export function Practice() {
         </p>
       </header>
 
+      {/*
+        «أسئلةٌ أخرى» swaps all ten questions while focus stays on the button, so
+        without this a screen-reader user gets no signal that anything changed.
+        Always rendered, so the region is in the tree before it has anything to
+        say, and it carries the round number: identical text would not be
+        re-announced on the third round and after.
+      */}
+      <p role="status" className="sr-only">
+        {seed > 1 ? `الجولة ${toArabicDigits(seed)}: ${toArabicDigits(ROUND_SIZE)} أسئلةٍ جديدة.` : ''}
+      </p>
+
       {allQuestions.length === 0 ? (
         <p className="mt-10 text-ink-600 dark:text-ink-400">
           لا توجد أسئلةٌ بعد. أضِف بلوك <code>quiz</code> إلى أيّ درس وستظهر هنا تلقائيًّا.

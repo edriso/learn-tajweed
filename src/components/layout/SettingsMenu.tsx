@@ -80,7 +80,9 @@ export function SettingsMenu() {
         type="button"
         onClick={() => setOpen((value) => !value)}
         aria-expanded={open}
-        aria-controls={panelId}
+        // aria-controls only while the panel exists: it is unmounted when
+        // closed, so an unconditional one is a dangling IDREF.
+        {...(open ? { 'aria-controls': panelId } : {})}
         aria-label="الإعدادات"
         title="الإعدادات"
         className="rounded-full p-2.5 text-ink-600 transition hover:bg-ink-100 hover:text-ink-900 dark:text-ink-400 dark:hover:bg-ink-800 dark:hover:text-ink-50"

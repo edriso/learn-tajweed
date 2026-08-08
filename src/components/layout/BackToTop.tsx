@@ -40,7 +40,7 @@ export function BackToTop() {
       onClick={scrollToTop}
       tabIndex={visible ? 0 : -1}
       aria-hidden={!visible}
-      className={`fixed bottom-5 end-5 z-20 inline-flex items-center gap-1.5 rounded-full border border-ink-200 bg-ink-50/90 px-4 py-2.5 text-sm font-semibold text-ink-700 shadow-soft backdrop-blur transition hover:border-green-400 hover:text-green-700 dark:border-ink-700 dark:bg-ink-900/90 dark:text-ink-300 dark:hover:text-green-300 ${
+      className={`fixed bottom-5 end-5 z-20 inline-flex items-center gap-1.5 rounded-full border border-ink-500 bg-ink-50/90 px-4 py-2.5 text-sm font-semibold text-ink-700 shadow-soft backdrop-blur transition hover:border-green-400 hover:text-green-700 dark:border-ink-500 dark:bg-ink-900/90 dark:text-ink-300 dark:hover:text-green-300 ${
         visible ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-2 opacity-0'
       }`}
     >

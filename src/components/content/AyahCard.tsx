@@ -93,9 +93,15 @@ export function AyahCard({ spec }: { spec: AyahSpec }) {
         <div className="flex items-center justify-between gap-3">
           <p id={captionId} className="text-sm font-semibold text-ink-700 dark:text-ink-300">
             سورة {ayah.surahName}
+            {/* The spaces around the separator are explicit: the dot is
+                aria-hidden and JSX drops the surrounding newline whitespace, so
+                without them the accessible name came out «الكهفالآية» — the
+                surah name and «الآية» read as one word on every verse card. */}
+            {' '}
             <span className="mx-1.5 text-ink-400" aria-hidden="true">
               ·
             </span>
+            {' '}
             الآية {toArabicDigits(ayah.ayah)}
             {isPartial && <span className="text-ink-600 dark:text-ink-400"> (جزء منها)</span>}
           </p>

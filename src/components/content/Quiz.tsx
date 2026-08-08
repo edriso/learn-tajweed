@@ -146,6 +146,10 @@ export function Quiz({
 
   const finished = score.done === questions.length && questions.length > 0
   const key = useMemo(() => `attempt-${attempt}`, [attempt])
+  const verdict =
+    score.right === questions.length
+      ? 'ممتاز، أصبتَ في كلّ الأسئلة. انتقِل إلى الدرس التالي.'
+      : 'راجِع ما أخطأتَ فيه ثمّ أعِد المحاولة.'
 
   function record(correct: boolean) {
     setScore((prev) => ({ right: prev.right + (correct ? 1 : 0), done: prev.done + 1 }))
@@ -165,11 +169,10 @@ export function Quiz({
   return (
     <section className="my-8 overflow-hidden rounded-card border border-ink-200 bg-white shadow-soft dark:border-ink-800 dark:bg-ink-900">
       <div className="flex items-center justify-between gap-3 border-b border-ink-200 bg-ink-100/60 px-4 py-3 dark:border-ink-800 dark:bg-ink-800/40">
-        <Heading
-          ref={headingRef}
-          tabIndex={-1}
-          className="font-bold text-ink-900 outline-none dark:text-ink-50"
-        >
+        {/* No `outline-none` here. Focus lands on this heading after a retry,
+            and suppressing the ring unconditionally left a keyboard user with
+            no idea where they had been sent. */}
+        <Heading ref={headingRef} tabIndex={-1} className="font-bold text-ink-900 dark:text-ink-50">
           {title ?? 'اختبِر نفسك'}
         </Heading>
         <span className="inline-block min-w-[4.5ch] text-end text-sm font-semibold text-ink-600 dark:text-ink-400">
@@ -185,20 +188,22 @@ export function Quiz({
         ))}
       </ul>
 
+      {/* The region has to be in the tree before the verdict arrives, so it sits
+          outside the `finished` block rather than inside it — a region created
+          in the same tick that fills it is the race screen readers lose. The
+          visible copy below carries no role, and the retry button is kept out
+          of the region so it is not read as part of the result. */}
+      <div role="status" className="sr-only">
+        {finished ? verdict : ''}
+      </div>
+
       {finished && (
-        <div
-          role="status"
-          className="flex flex-wrap items-center justify-between gap-3 border-t border-ink-200 bg-ink-100/60 px-4 py-3 dark:border-ink-800 dark:bg-ink-800/40"
-        >
-          <p className="font-semibold text-ink-800 dark:text-ink-200">
-            {score.right === questions.length
-              ? 'ممتاز، أصبتَ في كلّ الأسئلة. انتقِل إلى الدرس التالي.'
-              : 'راجِع ما أخطأتَ فيه ثمّ أعِد المحاولة.'}
-          </p>
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-ink-200 bg-ink-100/60 px-4 py-3 dark:border-ink-800 dark:bg-ink-800/40">
+          <p className="font-semibold text-ink-800 dark:text-ink-200">{verdict}</p>
           <button
             type="button"
             onClick={retry}
-            className="inline-flex items-center gap-1.5 rounded-full border border-ink-500 px-4 py-2 text-sm font-semibold text-ink-700 transition hover:border-green-400 hover:text-green-700 dark:border-ink-600 dark:text-ink-300 dark:hover:border-green-700 dark:hover:text-green-400"
+            className="inline-flex items-center gap-1.5 rounded-full border border-ink-500 px-4 py-2 text-sm font-semibold text-ink-700 transition hover:border-green-400 hover:text-green-700 dark:border-ink-500 dark:text-ink-300 dark:hover:border-green-700 dark:hover:text-green-400"
           >
             <RotateCcw size={15} />
             أعِد المحاولة

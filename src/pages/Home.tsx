@@ -59,7 +59,7 @@ export function Home() {
           </Link>
           <Link
             to="/cheatsheet"
-            className="inline-flex items-center gap-2 rounded-full border border-ink-500 px-6 py-3 font-bold text-ink-700 transition hover:border-green-400 hover:text-green-800 dark:border-ink-700 dark:text-ink-300 dark:hover:border-green-700 dark:hover:text-green-300"
+            className="inline-flex items-center gap-2 rounded-full border border-ink-500 px-6 py-3 font-bold text-ink-700 transition hover:border-green-400 hover:text-green-800 dark:border-ink-500 dark:text-ink-300 dark:hover:border-green-700 dark:hover:text-green-300"
           >
             اذهب إلى الخلاصة
           </Link>

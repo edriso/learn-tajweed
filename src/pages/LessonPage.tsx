@@ -132,12 +132,17 @@ export function LessonPage() {
             'inline-flex items-center gap-2 rounded-full px-6 py-3 font-bold transition',
             done
               ? 'bg-green-700 text-white hover:bg-green-800 dark:bg-green-600 dark:hover:bg-green-500'
-              : 'border border-ink-500 text-ink-700 hover:border-green-400 hover:text-green-800 dark:border-ink-600 dark:text-ink-300 dark:hover:border-green-700 dark:hover:text-green-300',
+              : 'border border-ink-500 text-ink-700 hover:border-green-400 hover:text-green-800 dark:border-ink-500 dark:text-ink-300 dark:hover:border-green-700 dark:hover:text-green-300',
           )}
         >
           <Check size={18} strokeWidth={3} aria-hidden="true" />
           {done ? 'أتممتَ هذا الدرس' : 'وسم الدرس كمُنجَز'}
         </button>
+        {/* The label changes while the button keeps focus, and VoiceOver often
+            does not re-announce that. Same treatment as the audio button. */}
+        <span role="status" className="sr-only">
+          {done ? 'تمّ وسم الدرس كمُنجَز' : ''}
+        </span>
         <p className="mt-2 text-sm text-ink-600 dark:text-ink-400">
           يُحفَظ تقدُّمك على جهازك وحده، بلا حسابٍ ولا خادم.
         </p>
