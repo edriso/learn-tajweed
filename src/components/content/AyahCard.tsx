@@ -1,4 +1,4 @@
-import { Fragment } from 'react'
+import { Fragment, useId } from 'react'
 import { ExternalLink } from 'lucide-react'
 import { AudioButton } from './AudioButton'
 import { RuleBadge } from './RuleBadge'
@@ -61,13 +61,15 @@ function toSegments(text: string, ref: string, marks: AyahMark[], from: number, 
 }
 
 export function AyahCard({ spec }: { spec: AyahSpec }) {
+  const captionId = useId()
   const ayah = getAyah(spec.ref)
   if (!ayah) {
     // Only reachable if the generated data is out of date; `npm run quran:build`
     // fixes it. Never render a guess in place of a verse.
     return (
       <p className="my-6 rounded-card border border-rule-idgham/40 bg-rule-idgham/5 p-4 text-sm text-rule-idgham">
-        الآية {spec.ref} غير موجودة في بيانات المصحف. شغِّل <code>npm run quran:build</code>.
+        الآية <bdi>{spec.ref}</bdi> غير موجودة في بيانات المصحف. شغِّل{' '}
+        <code>npm run quran:build</code>.
       </p>
     )
   }
@@ -83,28 +85,33 @@ export function AyahCard({ spec }: { spec: AyahSpec }) {
   const usedRules = [...new Set(marks.map((mark) => mark.rule))]
 
   return (
-    <figure className="my-7 overflow-hidden rounded-card border border-ink-200 bg-white shadow-soft dark:border-ink-800 dark:bg-ink-900">
+    <figure
+      aria-labelledby={captionId}
+      className="my-7 overflow-hidden rounded-card border border-ink-200 bg-white shadow-soft dark:border-ink-800 dark:bg-ink-900"
+    >
       <div className="border-b border-gold-200/70 bg-gold-100/40 px-4 py-2.5 dark:border-gold-900/60 dark:bg-gold-900/15">
         <div className="flex items-center justify-between gap-3">
-          <figcaption className="text-sm font-semibold text-ink-700 dark:text-ink-300">
+          <p id={captionId} className="text-sm font-semibold text-ink-700 dark:text-ink-300">
             سورة {ayah.surahName}
             <span className="mx-1.5 text-ink-400" aria-hidden="true">
               ·
             </span>
             الآية {toArabicDigits(ayah.ayah)}
-            {isPartial && <span className="text-ink-500 dark:text-ink-400"> (جزء منها)</span>}
-          </figcaption>
+            {isPartial && <span className="text-ink-600 dark:text-ink-400"> (جزء منها)</span>}
+          </p>
           <div className="flex items-center gap-1.5">
             <AudioButton ayah={ayah} />
             <a
               href={quranComUrl(ayah)}
               target="_blank"
               rel="noreferrer"
-              aria-label={`افتح الآية في سياقها على quran.com`}
               title="افتح الآية في سياقها"
-              className="inline-flex size-9 items-center justify-center rounded-full text-ink-500 transition hover:bg-ink-100 hover:text-ink-900 dark:text-ink-400 dark:hover:bg-ink-800 dark:hover:text-ink-50"
+              className="inline-flex size-9 items-center justify-center rounded-full text-ink-600 transition hover:bg-ink-100 hover:text-ink-900 dark:text-ink-400 dark:hover:bg-ink-800 dark:hover:text-ink-50"
             >
-              <ExternalLink size={16} />
+              <ExternalLink size={16} aria-hidden="true" />
+              <span className="sr-only">
+                افتح الآية في سياقها على <span lang="en">quran.com</span>
+              </span>
             </a>
           </div>
         </div>
@@ -135,6 +142,15 @@ export function AyahCard({ spec }: { spec: AyahSpec }) {
           </span>
         )}
       </p>
+
+      {segments.some((segment) => segment.rule) && (
+        <p className="sr-only">
+          {segments
+            .filter((segment) => segment.rule)
+            .map((segment) => `${segment.text.trim()}: ${getRule(segment.rule!)?.name ?? ''}`)
+            .join('، ')}
+        </p>
+      )}
 
       {(usedRules.length > 0 || spec.note) && (
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-ink-200 px-4 py-3 dark:border-ink-800">

@@ -16,10 +16,10 @@ function FooterAyah() {
 
   return (
     <>
-      <p className="quran text-center !text-xl text-green-700 dark:text-green-300">
+      <p className="quran quran-sm text-center text-green-700 dark:text-green-300">
         {ayah.text.slice(span[0], span[1])}
       </p>
-      <p className="mt-2 text-center text-sm text-ink-500 dark:text-ink-400">
+      <p className="mt-2 text-center text-sm text-ink-600 dark:text-ink-400">
         سورة {ayah.surahName}، الآية {toArabicDigits(ayah.ayah)}
       </p>
     </>
@@ -32,7 +32,7 @@ export function Footer() {
       <div className="mx-auto max-w-4xl px-4 py-10">
         <FooterAyah />
 
-        <div className="mt-8 flex flex-col items-center gap-4 border-t border-ink-200 pt-6 text-sm text-ink-500 sm:flex-row sm:justify-between dark:border-ink-800 dark:text-ink-400">
+        <div className="mt-8 flex flex-col items-center gap-4 border-t border-ink-200 pt-6 text-sm text-ink-600 dark:text-ink-400 sm:flex-row sm:justify-between dark:border-ink-800 dark:text-ink-400">
           <p>
             دليلٌ مجّانيّ مفتوح المصدر على {RIWAYAH}.{' '}
             <Link to="/about" className="font-semibold text-green-700 hover:underline dark:text-green-400">

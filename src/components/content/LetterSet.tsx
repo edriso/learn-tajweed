@@ -23,7 +23,7 @@ export function LetterSet({ spec }: { spec: LetterSetSpec }) {
   return (
     <div className="my-7 rounded-card border border-ink-200 bg-white p-5 shadow-soft dark:border-ink-800 dark:bg-ink-900">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h4 className="font-bold text-ink-900 dark:text-ink-50">{spec.title}</h4>
+        <h3 className="font-bold text-ink-900 dark:text-ink-50">{spec.title}</h3>
         <span className="rounded-full bg-ink-100 px-2.5 py-0.5 text-sm font-semibold text-ink-600 dark:bg-ink-800 dark:text-ink-400">
           {countLabel(spec.items.length, ['حرفٌ واحد', 'حرفان', 'أحرف', 'حرفًا'])}
         </span>
@@ -34,7 +34,7 @@ export function LetterSet({ spec }: { spec: LetterSetSpec }) {
           <li
             key={`${letter}-${index}`}
             className={cn(
-              'quran flex size-14 items-center justify-center rounded-xl border border-ink-200 bg-ink-50 !text-3xl !leading-none dark:border-ink-700 dark:bg-ink-800',
+              'letter-chip flex size-14 items-center justify-center rounded-xl border border-ink-200 bg-ink-50 text-ink-900 dark:border-ink-700 dark:bg-ink-800 dark:text-ink-50',
               rule && RULE_TEXT_CLASS[rule.color],
             )}
           >
@@ -45,10 +45,10 @@ export function LetterSet({ spec }: { spec: LetterSetSpec }) {
 
       {spec.mnemonic && (
         <p className="mt-4 rounded-xl bg-gold-100/50 px-4 py-3 text-center dark:bg-gold-900/20">
-          <span className="block text-xs font-semibold tracking-wide text-gold-800 dark:text-gold-300">
+          <span className="block text-sm font-semibold text-gold-800 dark:text-gold-300">
             تُجمَع في قولهم
           </span>
-          <span className="quran mt-1 block !text-2xl text-ink-900 dark:text-ink-50">
+          <span className="quran quran-md mt-1 block">
             {spec.mnemonic}
           </span>
         </p>

@@ -22,7 +22,7 @@ export function Compare({ spec }: { spec: CompareSpec }) {
   return (
     <div
       className={cn(
-        'my-7 grid gap-4',
+        'my-7 grid grid-cols-1 gap-4',
         spec.columns.length >= 3 ? 'sm:grid-cols-3' : 'sm:grid-cols-2',
       )}
     >
@@ -33,7 +33,7 @@ export function Compare({ spec }: { spec: CompareSpec }) {
             key={column.title}
             className="rounded-card border border-ink-200 bg-white p-4 shadow-soft dark:border-ink-800 dark:bg-ink-900"
           >
-            <h4
+            <h3
               className={cn(
                 'inline-flex rounded-full px-3 py-1 text-base font-bold',
                 matched
@@ -42,7 +42,7 @@ export function Compare({ spec }: { spec: CompareSpec }) {
               )}
             >
               {column.title}
-            </h4>
+            </h3>
             <ul className="mt-3 list-none space-y-2 ps-0 text-ink-700 dark:text-ink-300">
               {column.points.map((point) => (
                 <li key={point} className="flex gap-2">

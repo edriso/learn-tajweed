@@ -2,6 +2,7 @@ import { ArrowLeft, BookOpen, Headphones, ListChecks } from 'lucide-react'
 import { Link } from 'react-router'
 import { LessonCard } from '@/components/home/LessonCard'
 import { ProgressBar } from '@/components/home/ProgressBar'
+import { usePageTitle } from '@/hooks/usePageTitle'
 import { useProgress } from '@/hooks/useProgress'
 import { lessons, lessonsOfUnit } from '@/lib/lessons'
 import { RIWAYAH } from '@/lib/site'
@@ -27,6 +28,7 @@ const HOW_TO_USE = [
 ]
 
 export function Home() {
+  usePageTitle()
   const { isDone, completed, total, percent, nextLesson } = useProgress()
   const started = completed > 0
 
@@ -34,10 +36,10 @@ export function Home() {
     <div>
       {/* ── Hero ─────────────────────────────────────────────────────── */}
       <section className="py-6 text-center sm:py-10">
-        <p className="text-sm font-bold tracking-wide text-green-700 dark:text-green-400">
+        <p className="text-sm font-bold text-green-700 dark:text-green-400">
           {RIWAYAH}
         </p>
-        <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-ink-900 sm:text-5xl dark:text-ink-50">
+        <h1 className="mt-3 text-3xl font-extrabold text-ink-900 sm:text-5xl dark:text-ink-50">
           تعلَّم أحكام التجويد
           <span className="mt-1 block text-green-700 dark:text-green-400">خطوةً بخطوة</span>
         </h1>
@@ -57,13 +59,13 @@ export function Home() {
           </Link>
           <Link
             to="/cheatsheet"
-            className="inline-flex items-center gap-2 rounded-full border border-ink-300 px-6 py-3 font-bold text-ink-700 transition hover:border-green-400 hover:text-green-800 dark:border-ink-700 dark:text-ink-300 dark:hover:border-green-700 dark:hover:text-green-300"
+            className="inline-flex items-center gap-2 rounded-full border border-ink-500 px-6 py-3 font-bold text-ink-700 transition hover:border-green-400 hover:text-green-800 dark:border-ink-700 dark:text-ink-300 dark:hover:border-green-700 dark:hover:text-green-300"
           >
             اذهب إلى الخلاصة
           </Link>
         </div>
 
-        <p className="mt-5 text-sm text-ink-500 dark:text-ink-500">
+        <p className="mt-5 text-sm text-ink-600 dark:text-ink-400">
           {toArabicDigits(total)} درسًا في {toArabicDigits(UNITS.length)} وحدات · مجّانيّ
           بالكامل · بلا حسابٍ ولا إعلانات
         </p>
@@ -78,7 +80,7 @@ export function Home() {
       {/* ── How to use it ────────────────────────────────────────────── */}
       <section className="mt-12">
         <h2 className="text-xl font-bold text-ink-900 dark:text-ink-50">كيف تستعمل هذا الدليل</h2>
-        <ul className="mt-4 grid gap-4 sm:grid-cols-3">
+        <ul className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
           {HOW_TO_USE.map(({ icon: Icon, title, body }) => (
             <li
               key={title}
@@ -107,9 +109,9 @@ export function Home() {
               <li key={unit.id}>
                 <a
                   href={`#unit-${unit.id}`}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-ink-200 bg-white px-3 py-1.5 text-sm font-semibold text-ink-700 transition hover:border-green-400 hover:text-green-800 dark:border-ink-800 dark:bg-ink-900 dark:text-ink-300 dark:hover:border-green-700 dark:hover:text-green-300"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-ink-400 bg-white px-3 py-1.5 text-sm font-semibold text-ink-700 transition hover:border-green-400 hover:text-green-800 dark:border-ink-800 dark:bg-ink-900 dark:text-ink-300 dark:hover:border-green-700 dark:hover:text-green-300"
                 >
-                  <span className="text-ink-400">{toArabicDigits(unitIndex + 1)}</span>
+                  <span className="text-ink-600 dark:text-ink-400">{toArabicDigits(unitIndex + 1)}</span>
                   {unit.title}
                 </a>
               </li>
@@ -139,7 +141,7 @@ export function Home() {
                   </div>
                 </div>
 
-                <ul className="mt-5 grid gap-3 sm:grid-cols-2">
+                <ul className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
                   {unitLessons.map((lesson) => (
                     <li key={lesson.slug}>
                       <LessonCard

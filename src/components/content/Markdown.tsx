@@ -9,6 +9,7 @@ import { ExampleGrid, type ExampleGridSpec } from './ExampleGrid'
 import { LetterSet, type LetterSetSpec } from './LetterSet'
 import { MistakeCard, type MistakeSpec } from './MistakeCard'
 import { Quiz } from './Quiz'
+import { ScrollableTable } from './ScrollableTable'
 import { parseQuiz } from '@/lib/quiz'
 
 /**
@@ -47,9 +48,18 @@ export function Markdown({ children, slug }: { children: string; slug: string })
         components={{
           a({ node: _node, href, children, ...props }) {
             const external = href?.startsWith('http')
+            // A link whose text is all ASCII is a domain or a product name.
+            // Marking it lang="en" stops an Arabic voice reading it phonetically.
+            const latin = typeof children === 'string' && /^[\x20-\x7E]+$/.test(children)
             return (
-              <a href={href} {...props} {...(external ? { target: '_blank', rel: 'noreferrer' } : {})}>
+              <a
+                href={href}
+                {...(latin ? { lang: 'en' } : {})}
+                {...props}
+                {...(external ? { target: '_blank', rel: 'noreferrer' } : {})}
+              >
                 {children}
+                {external && <span className="sr-only"> (يفتح في صفحةٍ جديدة)</span>}
               </a>
             )
           },
@@ -58,9 +68,9 @@ export function Markdown({ children, slug }: { children: string; slug: string })
           // pushing the whole page sideways on a phone.
           table({ node: _node, children, ...props }) {
             return (
-              <div className="table-scroll">
+              <ScrollableTable>
                 <table {...props}>{children}</table>
-              </div>
+              </ScrollableTable>
             )
           },
 

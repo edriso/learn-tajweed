@@ -17,8 +17,8 @@ export interface MistakeSpec {
 export function MistakeCard({ spec }: { spec: MistakeSpec }) {
   return (
     <div className="my-7 overflow-hidden rounded-card border border-ink-200 bg-white shadow-soft dark:border-ink-800 dark:bg-ink-900">
-      <div className="grid sm:grid-cols-2">
-        <div className="border-b border-ink-200 p-4 sm:border-b-0 sm:border-l dark:border-ink-800">
+      <div className="grid grid-cols-1 sm:grid-cols-2">
+        <div className="border-b border-ink-200 p-4 sm:border-b-0 sm:border-e dark:border-ink-800">
           <p className="mb-1.5 flex items-center gap-1.5 text-sm font-bold text-rule-idgham dark:text-rule-idgham-dark">
             <X size={16} strokeWidth={3} aria-hidden="true" />
             الخطأ

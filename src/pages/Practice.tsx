@@ -2,12 +2,14 @@ import { useMemo, useState } from 'react'
 import { Shuffle } from 'lucide-react'
 import { Link } from 'react-router'
 import { Quiz } from '@/components/content/Quiz'
+import { usePageTitle } from '@/hooks/usePageTitle'
 import { allQuestions, pickQuestions } from '@/lib/quiz'
 import { toArabicDigits } from '@/lib/utils'
 
 const ROUND_SIZE = 10
 
 export function Practice() {
+  usePageTitle('تمارين مختلطة')
   // The seed is what decides which questions come up. Changing it is the whole
   // of «تمارين جديدة»; the Quiz below remounts because its key changes.
   const [seed, setSeed] = useState(1)
@@ -20,14 +22,14 @@ export function Practice() {
   return (
     <div>
       <header className="border-b border-ink-200 pb-8 dark:border-ink-800">
-        <h1 className="text-3xl font-extrabold tracking-tight text-ink-900 sm:text-4xl dark:text-ink-50">
-          🎯 تمارين مختلطة
+        <h1 className="text-3xl font-extrabold text-ink-900 sm:text-4xl dark:text-ink-50">
+          <span aria-hidden="true">🎯</span> تمارين مختلطة
         </h1>
         <p className="mt-3 text-lg leading-relaxed text-ink-600 dark:text-ink-400">
           {toArabicDigits(ROUND_SIZE)} أسئلة مسحوبةً عشوائيًّا من كلّ الدروس. هذا هو الاختبار
           الحقيقيّ: أن تعرف الحكم دون أن يُقال لك أيّ درسٍ نحن فيه.
         </p>
-        <p className="mt-3 text-sm text-ink-500 dark:text-ink-500">
+        <p className="mt-3 text-sm text-ink-600 dark:text-ink-400">
           بنك الأسئلة يحوي {toArabicDigits(allQuestions.length)} سؤالًا.
         </p>
       </header>
@@ -38,7 +40,7 @@ export function Practice() {
         </p>
       ) : (
         <>
-          <Quiz key={seed} questions={questions} title="جولةٌ جديدة" />
+          <Quiz key={seed} questions={questions} title="جولةٌ جديدة" headingLevel="h2" />
 
           <div className="text-center">
             <button

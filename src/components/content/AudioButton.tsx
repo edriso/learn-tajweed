@@ -34,6 +34,7 @@ export function AudioButton({ ayah, className }: { ayah: QuranAyah; className?: 
   }, [])
 
   function toggle() {
+    if (state === 'error') return
     if (state === 'playing') {
       audioRef.current?.pause()
       setState('idle')
@@ -72,7 +73,7 @@ export function AudioButton({ ayah, className }: { ayah: QuranAyah; className?: 
     <button
       type="button"
       onClick={toggle}
-      disabled={state === 'error'}
+      aria-disabled={state === 'error' || undefined}
       aria-label={label}
       title={label}
       className={cn(
@@ -88,7 +89,7 @@ export function AudioButton({ ayah, className }: { ayah: QuranAyah; className?: 
       ) : state === 'playing' ? (
         <Pause size={16} />
       ) : (
-        <Play size={16} className="rtl:-scale-x-100" />
+        <Play size={16} />
       )}
     </button>
   )

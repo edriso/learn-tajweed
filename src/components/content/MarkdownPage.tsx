@@ -20,7 +20,7 @@ export function MarkdownPage({ slug }: { slug: string }) {
   return (
     <div>
       <header className="border-b border-ink-200 pb-8 dark:border-ink-800">
-        <h1 className="flex flex-wrap items-center gap-3 text-3xl font-extrabold tracking-tight text-ink-900 sm:text-4xl dark:text-ink-50">
+        <h1 className="flex flex-wrap items-center gap-3 text-3xl font-extrabold text-ink-900 sm:text-4xl dark:text-ink-50">
           <span aria-hidden="true">{page.emoji}</span>
           {page.title}
         </h1>

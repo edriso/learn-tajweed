@@ -18,7 +18,7 @@ function QuestionText({ question }: { question: QuizQuestion }) {
         href={quranComUrl(ayah)}
         target="_blank"
         rel="noreferrer"
-        className="mt-1 block text-xs text-ink-400 transition hover:text-green-700 dark:hover:text-green-400"
+        className="mt-1 block text-xs text-ink-600 no-underline transition hover:text-green-700 hover:underline dark:text-ink-400 dark:hover:text-green-400"
       >
         {ayah.surahName} {toArabicDigits(ayah.ayah)}
       </a>
@@ -55,7 +55,7 @@ function Question({
 
       <QuestionText question={question} />
 
-      <ul className="grid list-none gap-2 ps-0 sm:grid-cols-2">
+      <ul className="grid list-none grid-cols-1 gap-2 ps-0 sm:grid-cols-2">
         {question.options.map((option, optionIndex) => {
           const isAnswer = optionIndex === question.answer
           const isPicked = optionIndex === picked
@@ -64,12 +64,11 @@ function Question({
               <button
                 type="button"
                 onClick={() => choose(optionIndex)}
-                disabled={answered}
-                aria-pressed={isPicked}
+                aria-disabled={answered || undefined}
                 className={cn(
-                  'flex w-full items-center justify-between gap-2 rounded-xl border px-4 py-2.5 text-right font-medium transition',
+                  'flex w-full items-center justify-between gap-2 rounded-xl border px-4 py-2.5 text-start font-medium transition',
                   !answered &&
-                    'border-ink-200 bg-white hover:border-green-400 hover:bg-green-50 dark:border-ink-700 dark:bg-ink-900 dark:hover:border-green-700 dark:hover:bg-green-950',
+                    'border-ink-500 bg-white hover:border-green-500 hover:bg-green-50 dark:border-ink-500 dark:bg-ink-900 dark:hover:border-green-600 dark:hover:bg-green-950',
                   answered &&
                     isAnswer &&
                     'border-green-500 bg-green-50 text-green-900 dark:border-green-600 dark:bg-green-950 dark:text-green-200',
@@ -77,10 +76,16 @@ function Question({
                     isPicked &&
                     !isAnswer &&
                     'border-rule-idgham bg-rule-idgham/5 text-rule-idgham dark:border-rule-idgham-dark dark:text-rule-idgham-dark',
-                  answered && !isAnswer && !isPicked && 'border-ink-200 opacity-50 dark:border-ink-800',
+                  answered && !isAnswer && !isPicked && 'border-ink-200 opacity-70 dark:border-ink-800',
                 )}
               >
-                {option}
+                <span>
+                  {option}
+                  {answered && isAnswer && <span className="sr-only"> (الإجابة الصحيحة)</span>}
+                  {answered && isPicked && !isAnswer && (
+                    <span className="sr-only"> (اخترتَها، وهي خطأ)</span>
+                  )}
+                </span>
                 {answered && isAnswer && <Check size={18} strokeWidth={3} aria-hidden="true" />}
                 {answered && isPicked && !isAnswer && (
                   <X size={18} strokeWidth={3} aria-hidden="true" />
@@ -91,24 +96,38 @@ function Question({
         })}
       </ul>
 
-      {answered && (
-        <p
-          role="status"
-          className="mt-3 rounded-xl bg-ink-100/70 px-4 py-3 text-sm text-ink-700 dark:bg-ink-800/50 dark:text-ink-300"
-        >
-          <span className="font-bold">
-            {picked === question.answer
-              ? 'إجابةٌ صحيحة. '
-              : `الصواب «${question.options[question.answer]}». `}
-          </span>
-          {question.why}
-        </p>
-      )}
+      <p
+        role="status"
+        className={cn(
+          'mt-3 rounded-xl bg-ink-100/70 px-4 py-3 text-sm text-ink-700 dark:bg-ink-800/50 dark:text-ink-300',
+          !answered && 'hidden',
+        )}
+      >
+        {answered && (
+          <>
+            <span className="font-bold">
+              {picked === question.answer
+                ? 'إجابةٌ صحيحة. '
+                : `الصواب «${question.options[question.answer]}». `}
+            </span>
+            {question.why}
+          </>
+        )}
+      </p>
     </li>
   )
 }
 
-export function Quiz({ questions, title }: { questions: QuizQuestion[]; title?: string }) {
+export function Quiz({
+  questions,
+  title,
+  headingLevel: Heading = 'h3',
+}: {
+  questions: QuizQuestion[]
+  title?: string
+  /** h2 where the quiz is the page's only section, h3 inside a lesson. */
+  headingLevel?: 'h2' | 'h3'
+}) {
   // Remounts every child on retry, which clears each question's own state.
   const [attempt, setAttempt] = useState(0)
   const [score, setScore] = useState({ right: 0, done: 0 })
@@ -130,8 +149,8 @@ export function Quiz({ questions, title }: { questions: QuizQuestion[]; title?: 
   return (
     <section className="my-8 overflow-hidden rounded-card border border-ink-200 bg-white shadow-soft dark:border-ink-800 dark:bg-ink-900">
       <div className="flex items-center justify-between gap-3 border-b border-ink-200 bg-ink-100/60 px-4 py-3 dark:border-ink-800 dark:bg-ink-800/40">
-        <h3 className="font-bold text-ink-900 dark:text-ink-50">{title ?? 'اختبِر نفسك'}</h3>
-        <span className="text-sm font-semibold text-ink-600 tabular-nums dark:text-ink-400">
+        <Heading className="font-bold text-ink-900 dark:text-ink-50">{title ?? 'اختبِر نفسك'}</Heading>
+        <span className="inline-block min-w-[4.5ch] text-end text-sm font-semibold text-ink-600 dark:text-ink-400">
           {toArabicDigits(score.right)} / {toArabicDigits(questions.length)}
         </span>
       </div>
@@ -152,7 +171,7 @@ export function Quiz({ questions, title }: { questions: QuizQuestion[]; title?: 
           <button
             type="button"
             onClick={retry}
-            className="inline-flex items-center gap-1.5 rounded-full border border-ink-300 px-4 py-2 text-sm font-semibold text-ink-700 transition hover:border-green-400 hover:text-green-700 dark:border-ink-600 dark:text-ink-300 dark:hover:border-green-700 dark:hover:text-green-400"
+            className="inline-flex items-center gap-1.5 rounded-full border border-ink-500 px-4 py-2 text-sm font-semibold text-ink-700 transition hover:border-green-400 hover:text-green-700 dark:border-ink-600 dark:text-ink-300 dark:hover:border-green-700 dark:hover:text-green-400"
           >
             <RotateCcw size={15} />
             أعِد المحاولة

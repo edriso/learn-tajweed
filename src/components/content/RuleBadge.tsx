@@ -17,7 +17,7 @@ export function RuleBadge({ id, className }: { id: string; className?: string })
       to={`/lessons/${rule.lesson}`}
       title={rule.short}
       className={cn(
-        'inline-flex items-center rounded-full px-2.5 py-1 text-sm font-semibold transition hover:brightness-95 dark:hover:brightness-110',
+        'inline-flex items-center rounded-full px-2.5 py-1 text-sm font-semibold no-underline transition hover:brightness-95 dark:hover:brightness-110',
         RULE_PILL_CLASS[rule.color],
         className,
       )}

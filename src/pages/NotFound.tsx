@@ -1,7 +1,10 @@
 import { ArrowRight } from 'lucide-react'
 import { Link } from 'react-router'
+import { usePageTitle } from '@/hooks/usePageTitle'
 
 export function NotFound() {
+  usePageTitle('الصفحة غير موجودة')
+
   return (
     <div className="py-20 text-center">
       <p className="text-6xl" aria-hidden="true">

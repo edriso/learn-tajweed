@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Menu, X } from 'lucide-react'
 import { Link, NavLink, useLocation } from 'react-router'
 import { GitHubIcon } from './GitHubIcon'
@@ -28,16 +28,29 @@ function navClasses({ isActive }: { isActive: boolean }) {
 export function Header() {
   const [open, setOpen] = useState(false)
   const { pathname } = useLocation()
+  const toggleRef = useRef<HTMLButtonElement>(null)
 
   // Close the mobile menu whenever the reader navigates somewhere.
   useEffect(() => setOpen(false), [pathname])
+
+  // Escape closes it, matching the settings panel.
+  useEffect(() => {
+    if (!open) return
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key !== 'Escape') return
+      setOpen(false)
+      toggleRef.current?.focus()
+    }
+    document.addEventListener('keydown', onKeyDown)
+    return () => document.removeEventListener('keydown', onKeyDown)
+  }, [open])
 
   return (
     <header className="sticky top-0 z-30 border-b border-ink-200 bg-ink-50/85 backdrop-blur dark:border-ink-800 dark:bg-ink-950/85">
       <div className="mx-auto flex max-w-4xl items-center justify-between gap-3 px-4 py-3">
         <Link
           to="/"
-          className="flex shrink-0 items-center gap-2 font-extrabold tracking-tight text-ink-900 dark:text-ink-50"
+          className="flex shrink-0 items-center gap-2 font-extrabold text-ink-900 dark:text-ink-50"
         >
           <Logo className="size-8 text-green-600 dark:text-green-400" />
           <span className="text-lg">تعلَّم التجويد</span>
@@ -56,20 +69,23 @@ export function Header() {
             href={REPO_URL}
             target="_blank"
             rel="noreferrer"
-            aria-label="الشيفرة المصدرية على GitHub"
-            className="hidden rounded-full p-2 text-ink-500 transition hover:bg-ink-100 hover:text-ink-900 sm:block dark:text-ink-400 dark:hover:bg-ink-800 dark:hover:text-ink-50"
+            title="الشيفرة المصدرية"
+            className="hidden rounded-full p-2 text-ink-600 transition hover:bg-ink-100 hover:text-ink-900 sm:block dark:text-ink-400 dark:hover:bg-ink-800 dark:hover:text-ink-50"
           >
             <GitHubIcon size={18} />
+            <span className="sr-only">
+              الشيفرة المصدرية على <span lang="en">GitHub</span>
+            </span>
           </a>
           <SettingsMenu />
           <ThemeToggle />
           <button
+            ref={toggleRef}
             type="button"
             onClick={() => setOpen((value) => !value)}
             aria-expanded={open}
-            aria-controls="mobile-nav"
             aria-label={open ? 'إغلاق القائمة' : 'فتح القائمة'}
-            className="rounded-full p-2 text-ink-500 transition hover:bg-ink-100 hover:text-ink-900 md:hidden dark:text-ink-400 dark:hover:bg-ink-800 dark:hover:text-ink-50"
+            className="rounded-full p-2 text-ink-600 transition hover:bg-ink-100 hover:text-ink-900 md:hidden dark:text-ink-400 dark:hover:bg-ink-800 dark:hover:text-ink-50"
           >
             {open ? <X size={20} /> : <Menu size={20} />}
           </button>

@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
-import { Check, Settings2 } from 'lucide-react'
+import { useCallback, useEffect, useId, useRef, useState } from 'react'
+import { Settings2 } from 'lucide-react'
 import {
   getReciter,
   getRuleColours,
@@ -10,35 +10,52 @@ import {
 import { cn } from '@/lib/utils'
 
 /**
- * Two reader choices in one small popover: the reciter the play buttons use, and
+ * Two reader choices in one small panel: which reciter the play buttons use, and
  * whether the rules are coloured.
  *
  * The colour switch is here rather than buried in a page because colouring the
  * Qur'an is a modern study aid that some readers prefer to do without. Turning
- * it off keeps the highlight (as a dotted underline) and drops the colour.
+ * it off keeps the highlight, as a dotted underline, and drops only the colour.
+ *
+ * This is a **disclosure**, not a dialog: focus is not trapped and the page
+ * behind it stays live, so it is deliberately not announced as one. Escape
+ * closes it and returns focus to the button that opened it.
  */
 export function SettingsMenu() {
   const [open, setOpen] = useState(false)
   const [reciter, setReciterState] = useState(getReciter)
   const [colours, setColoursState] = useState(getRuleColours)
   const boxRef = useRef<HTMLDivElement>(null)
+  const triggerRef = useRef<HTMLButtonElement>(null)
+  const panelId = useId()
 
-  // Close on a click outside or on Escape, the way a menu is expected to behave.
+  const close = useCallback((returnFocus = false) => {
+    setOpen(false)
+    if (returnFocus) triggerRef.current?.focus()
+  }, [])
+
   useEffect(() => {
     if (!open) return
     function onPointerDown(event: MouseEvent) {
-      if (!boxRef.current?.contains(event.target as Node)) setOpen(false)
+      if (!boxRef.current?.contains(event.target as Node)) close()
     }
     function onKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') setOpen(false)
+      if (event.key === 'Escape') close(true)
+    }
+    // Tabbing past the last control should dismiss it, as a menu would.
+    function onFocusOut(event: FocusEvent) {
+      if (!boxRef.current?.contains(event.relatedTarget as Node)) close()
     }
     document.addEventListener('mousedown', onPointerDown)
     document.addEventListener('keydown', onKeyDown)
+    boxRef.current?.addEventListener('focusout', onFocusOut)
+    const box = boxRef.current
     return () => {
       document.removeEventListener('mousedown', onPointerDown)
       document.removeEventListener('keydown', onKeyDown)
+      box?.removeEventListener('focusout', onFocusOut)
     }
-  }, [open])
+  }, [open, close])
 
   function chooseReciter(id: string) {
     setReciter(id)
@@ -54,65 +71,71 @@ export function SettingsMenu() {
   return (
     <div ref={boxRef} className="relative">
       <button
+        ref={triggerRef}
         type="button"
         onClick={() => setOpen((value) => !value)}
         aria-expanded={open}
-        aria-haspopup="dialog"
+        aria-controls={panelId}
         aria-label="الإعدادات"
         title="الإعدادات"
-        className="rounded-full p-2 text-ink-500 transition hover:bg-ink-100 hover:text-ink-900 dark:text-ink-400 dark:hover:bg-ink-800 dark:hover:text-ink-50"
+        className="rounded-full p-2 text-ink-600 transition hover:bg-ink-100 hover:text-ink-900 dark:text-ink-400 dark:hover:bg-ink-800 dark:hover:text-ink-50"
       >
         <Settings2 size={18} />
       </button>
 
       {open && (
+        /*
+         * The trigger sits near the edge of the header, so a panel anchored to
+         * it would hang off the side of a phone. Below `sm` it is pinned to the
+         * viewport instead, just under the header; from `sm` up it goes back to
+         * being a popover anchored to the button.
+         */
         <div
-          role="dialog"
-          aria-label="الإعدادات"
-          className="absolute top-full left-0 z-40 mt-2 w-80 rounded-card border border-ink-200 bg-white p-4 shadow-lift dark:border-ink-700 dark:bg-ink-900"
+          id={panelId}
+          className="fixed inset-x-3 top-16 z-40 rounded-card border border-ink-200 bg-white p-4 shadow-lift sm:absolute sm:inset-x-auto sm:top-full sm:end-0 sm:mt-2 sm:w-80 dark:border-ink-700 dark:bg-ink-900"
         >
+          {/*
+            Real radio inputs rather than buttons with `aria-pressed`: the three
+            reciters are mutually exclusive, and a fieldset of radios gets the
+            grouping, the arrow-key behaviour and the announcement for free.
+          */}
           <fieldset>
             <legend className="mb-2 text-sm font-bold text-ink-900 dark:text-ink-50">
               صوت التلاوة
             </legend>
-            <ul className="space-y-1.5">
+            <div className="space-y-1.5">
               {RECITERS.map((option) => {
                 const active = option.id === reciter
                 return (
-                  <li key={option.id}>
-                    <button
-                      type="button"
-                      onClick={() => chooseReciter(option.id)}
-                      aria-pressed={active}
-                      className={cn(
-                        'flex w-full gap-2 rounded-xl border p-2.5 text-right transition',
-                        active
-                          ? 'border-green-400 bg-green-50 dark:border-green-700 dark:bg-green-950'
-                          : 'border-transparent hover:bg-ink-100 dark:hover:bg-ink-800',
-                      )}
-                    >
-                      <Check
-                        size={16}
-                        strokeWidth={3}
-                        aria-hidden="true"
-                        className={cn(
-                          'mt-1 shrink-0 text-green-700 dark:text-green-400',
-                          !active && 'invisible',
-                        )}
-                      />
-                      <span>
-                        <span className="block text-sm font-semibold text-ink-900 dark:text-ink-50">
-                          {option.name}
-                        </span>
-                        <span className="block text-xs text-ink-600 dark:text-ink-400">
-                          {option.note}
-                        </span>
+                  <label
+                    key={option.id}
+                    className={cn(
+                      'flex cursor-pointer gap-2.5 rounded-xl border p-2.5 transition',
+                      active
+                        ? 'border-green-500 bg-green-50 dark:border-green-700 dark:bg-green-950'
+                        : 'border-transparent hover:bg-ink-100 dark:hover:bg-ink-800',
+                    )}
+                  >
+                    <input
+                      type="radio"
+                      name="reciter"
+                      value={option.id}
+                      checked={active}
+                      onChange={() => chooseReciter(option.id)}
+                      className="mt-1.5 size-4 shrink-0 accent-green-700 dark:accent-green-500"
+                    />
+                    <span>
+                      <span className="block text-sm font-semibold text-ink-900 dark:text-ink-50">
+                        {option.name}
                       </span>
-                    </button>
-                  </li>
+                      <span className="block text-sm text-ink-600 dark:text-ink-400">
+                        {option.note}
+                      </span>
+                    </span>
+                  </label>
                 )
               })}
-            </ul>
+            </div>
           </fieldset>
 
           <hr className="my-3 border-ink-200 dark:border-ink-800" />
@@ -122,27 +145,33 @@ export function SettingsMenu() {
             onClick={toggleColours}
             role="switch"
             aria-checked={colours}
-            className="flex w-full items-center justify-between gap-3 rounded-xl p-2 text-right transition hover:bg-ink-100 dark:hover:bg-ink-800"
+            aria-describedby={`${panelId}-colours`}
+            className="flex w-full items-center justify-between gap-3 rounded-xl p-2 text-start transition hover:bg-ink-100 dark:hover:bg-ink-800"
           >
             <span>
               <span className="block text-sm font-semibold text-ink-900 dark:text-ink-50">
                 تلوين الأحكام
               </span>
-              <span className="block text-xs text-ink-600 dark:text-ink-400">
+              <span
+                id={`${panelId}-colours`}
+                className="block text-sm text-ink-600 dark:text-ink-400"
+              >
                 إن أطفأتَه بقي التحديد بخطٍّ منقَّط بلا لون.
               </span>
             </span>
+            {/* The knob travels toward the inline end when on, which mirrors
+                correctly in a right-to-left layout. */}
             <span
               aria-hidden="true"
               className={cn(
                 'relative h-6 w-11 shrink-0 rounded-full transition',
-                colours ? 'bg-green-600' : 'bg-ink-300 dark:bg-ink-700',
+                colours ? 'bg-green-700 dark:bg-green-600' : 'bg-ink-400 dark:bg-ink-600',
               )}
             >
               <span
                 className={cn(
                   'absolute top-0.5 size-5 rounded-full bg-white transition-all',
-                  colours ? 'right-0.5' : 'right-5.5',
+                  colours ? 'end-0.5' : 'start-0.5',
                 )}
               />
             </span>

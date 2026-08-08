@@ -164,6 +164,9 @@ The count is worked out and displayed automatically, with correct Arabic grammar
 Do not use Uthmani orthography in a mnemonic. Mnemonics are not Qur'an, so write
 hamzat al-wasl as a plain alef.
 
+Letters render through `.letter-chip`, which compensates for the Qur'anic font's
+lopsided metrics so a letter with a descender (غ, ج, م) stays inside its square.
+
 ### `mistake` — a common error and its correction
 
 ```markdown
@@ -253,6 +256,20 @@ These four take **Markdown**, not YAML, so lists and bold work inside them:
 | `warning` | تنبيهٌ مهمّ | a common trap, or a caveat about the riwayah |
 
 ---
+
+## Sizing Qur'anic text in a component
+
+If you add a component that shows Qur'anic text, size it with **`.quran`, `.quran-md`
+or `.quran-sm`** and nothing else. A Tailwind `text-*` utility sets a line-height as
+well as a font-size, so it clamps the line box and clips the tashkeel. The same goes for
+`leading-*`: this font needs a 2.45em line box, and anything less makes the marks of one
+line collide with the next.
+
+    <p className="quran quran-md">…</p>    yes
+    <p className="quran !text-2xl">…</p>   no: clips the marks
+
+Arabic is also a joined script, so **never** apply `letter-spacing` to it. The
+`--tracking-*` tokens are zeroed in `src/index.css` to make that impossible by accident.
 
 ## Writing style
 

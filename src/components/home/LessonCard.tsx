@@ -34,16 +34,17 @@ export function LessonCard({
       >
         {done ? <Check size={18} strokeWidth={3} /> : toArabicDigits(number)}
       </span>
+      <span className="sr-only">الدرس {toArabicDigits(number)}: </span>
 
       <div className="min-w-0">
         <h3 className="font-bold text-ink-900 group-hover:text-green-800 dark:text-ink-50 dark:group-hover:text-green-300">
-          {lesson.emoji} {lesson.title}
+          <span aria-hidden="true">{lesson.emoji}</span> {lesson.title}
           {done && <span className="sr-only"> (أتممتَه)</span>}
         </h3>
         <p className="mt-1 text-sm leading-relaxed text-ink-600 dark:text-ink-400">
           {lesson.description}
         </p>
-        <p className="mt-2 flex items-center gap-1.5 text-xs text-ink-500 dark:text-ink-500">
+        <p className="mt-2 flex items-center gap-1.5 text-xs text-ink-600 dark:text-ink-400">
           <Clock size={13} aria-hidden="true" />
           نحو {toArabicDigits(lesson.minutes)} دقائق
         </p>

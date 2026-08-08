@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Search } from 'lucide-react'
 import { Link } from 'react-router'
+import { usePageTitle } from '@/hooks/usePageTitle'
 import { foldArabic } from '@/lib/arabic'
 import { TERMS, type Term } from '@/lib/glossary'
 import { RULES } from '@/lib/rules'
@@ -13,6 +14,7 @@ const ALL_TERMS: Term[] = [
 ].sort((a, b) => a.term.localeCompare(b.term, 'ar'))
 
 export function Glossary() {
+  usePageTitle('معجم المصطلحات')
   const [query, setQuery] = useState('')
 
   const results = useMemo(() => {
@@ -27,8 +29,8 @@ export function Glossary() {
   return (
     <div>
       <header className="border-b border-ink-200 pb-8 dark:border-ink-800">
-        <h1 className="text-3xl font-extrabold tracking-tight text-ink-900 sm:text-4xl dark:text-ink-50">
-          📖 معجم المصطلحات
+        <h1 className="text-3xl font-extrabold text-ink-900 sm:text-4xl dark:text-ink-50">
+          <span aria-hidden="true">📖</span> معجم المصطلحات
         </h1>
         <p className="mt-3 text-lg leading-relaxed text-ink-600 dark:text-ink-400">
           كلّ كلمةٍ اصطلاحيّةٍ في هذا الدليل، بتعريفٍ من سطرٍ أو سطرين ورابطٍ إلى درسها. إذا
@@ -38,7 +40,7 @@ export function Glossary() {
         <div className="relative mt-6">
           <Search
             size={18}
-            className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-ink-400"
+            className="pointer-events-none absolute top-1/2 start-4 -translate-y-1/2 text-ink-400"
             aria-hidden="true"
           />
           <input
@@ -47,10 +49,10 @@ export function Glossary() {
             onChange={(event) => setQuery(event.target.value)}
             placeholder="ابحث عن مصطلح…"
             aria-label="ابحث في المصطلحات"
-            className="w-full rounded-full border border-ink-300 bg-white py-3 pr-12 pl-4 text-ink-900 placeholder:text-ink-400 focus:border-green-500 focus:outline-none dark:border-ink-700 dark:bg-ink-900 dark:text-ink-50"
+            className="w-full rounded-full border border-ink-300 bg-white py-3 ps-12 pe-4 text-ink-900 placeholder:text-ink-600 focus:border-green-500 dark:border-ink-700 dark:bg-ink-900 dark:text-ink-50 dark:placeholder:text-ink-400"
           />
         </div>
-        <p className="mt-3 text-sm text-ink-500" role="status">
+        <p className="mt-3 text-sm text-ink-600 dark:text-ink-400" role="status">
           {toArabicDigits(results.length)} من {toArabicDigits(ALL_TERMS.length)} مصطلحًا
         </p>
       </header>

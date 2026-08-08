@@ -37,7 +37,7 @@ function Example({ item, fallbackRule }: { item: ExampleItem; fallbackRule?: str
 
   return (
     <li className="rounded-xl border border-ink-200 bg-white p-3 text-center transition hover:border-green-300 dark:border-ink-800 dark:bg-ink-900 dark:hover:border-green-800">
-      <p className="quran !text-2xl !leading-snug">
+      <p className="quran quran-md">
         {safe ? (
           <>
             {text.slice(0, start)}
@@ -55,7 +55,7 @@ function Example({ item, fallbackRule }: { item: ExampleItem; fallbackRule?: str
         href={quranComUrl(ayah)}
         target="_blank"
         rel="noreferrer"
-        className="mt-1 block text-xs text-ink-400 transition hover:text-green-700 dark:hover:text-green-400"
+        className="mt-1 block text-xs text-ink-600 no-underline transition hover:text-green-700 hover:underline dark:text-ink-400 dark:hover:text-green-400"
       >
         {ayah.surahName} {toArabicDigits(ayah.ayah)}
       </a>

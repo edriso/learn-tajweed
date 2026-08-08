@@ -60,14 +60,39 @@ This guide is Hafs from al-Shatibiyyah. Where Tayyibah or another riwayah differ
 so. Readers hear other recitations and must not conclude those are mistakes. The clearest
 case is قصر المنفصل, which is valid from Tayyibah and not from Shatibiyyah.
 
-### 4. Arabic character classes get `\uXXXX` escapes
+### 4. Arabic typography has three hard rules
+
+These are not preferences. Each one was a real bug before it was a rule.
+
+- **Never put a `text-*` utility on `.quran`.** Tailwind's size utilities set a
+  line-height too, so `text-2xl` silently clamps the line box and clips the
+  tashkeel. Use `.quran-md` or `.quran-sm`, which change only the size.
+- **Never set a line-height below `normal` on Qur'anic text.** Amiri Quran has a
+  2.45em content area (1.82em ascender, 0.63em descender) because it reserves
+  room for stacked waqf marks. Anything shorter and consecutive lines collide,
+  starting with exactly the marks the reader came for. `.quran` pins 2.5.
+- **Never use `letter-spacing` on Arabic.** It is a joined script: positive
+  tracking breaks the connecting stroke, negative tracking merges the dots of
+  ب ت ث and ج ح خ. The `--tracking-*` tokens are zeroed in `src/index.css` so a
+  stray `tracking-tight` cannot reintroduce it.
+
+A single letter in a fixed square is its own problem: centring by line box puts
+the baseline 0.59em too low and drops the tail of a letter like غ out of the
+box. `.letter-chip` compensates with bottom padding. See the comment there.
+
+Prefer logical properties (`ps-`, `pe-`, `ms-`, `me-`, `start-`, `end-`,
+`text-start`, `border-e`) over physical ones everywhere, so nothing hardcodes a
+side. Media transport icons (play, pause) are the one thing that must **not**
+mirror: they point at the direction of the audio, not the direction of reading.
+
+### 5. Arabic character classes get `\uXXXX` escapes
 
 In `scripts/` and in `src/lib/arabic.ts`, never type Arabic letters inside a regular
 expression. A bidirectional editor reorders ranges on screen, so a range can be saved
 completely differently from how it reads, silently. This already happened once and the
 self-test in `build-quran.mjs` exists because of it. See the pipeline doc.
 
-### 5. Nothing haram
+### 6. Nothing haram
 
 No images of people, no music, no channels that mix teaching with entertainment. Videos
 come from the shaykh's own channel, not from TV re-uploads. Verify a video id before
