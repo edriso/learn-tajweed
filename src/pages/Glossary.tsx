@@ -43,13 +43,15 @@ export function Glossary() {
             className="pointer-events-none absolute top-1/2 start-4 -translate-y-1/2 text-ink-400"
             aria-hidden="true"
           />
+          {/* The border is the only thing that marks where the field is, so it
+              has to clear 3:1 (WCAG 1.4.11) rather than merely be visible. */}
           <input
             type="search"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="ابحث عن مصطلح…"
             aria-label="ابحث في المصطلحات"
-            className="w-full rounded-full border border-ink-300 bg-white py-3 ps-12 pe-4 text-ink-900 placeholder:text-ink-600 focus:border-green-500 dark:border-ink-700 dark:bg-ink-900 dark:text-ink-50 dark:placeholder:text-ink-400"
+            className="w-full rounded-full border border-ink-500 bg-white py-3 ps-12 pe-4 text-ink-900 placeholder:text-ink-600 focus:border-green-500 dark:border-ink-500 dark:bg-ink-900 dark:text-ink-50 dark:placeholder:text-ink-400"
           />
         </div>
         <p className="mt-3 text-sm text-ink-600 dark:text-ink-400" role="status">
@@ -69,7 +71,11 @@ export function Glossary() {
               className="rounded-card border border-ink-200 bg-white p-5 dark:border-ink-800 dark:bg-ink-900"
             >
               <dt className="text-lg font-extrabold text-ink-900 dark:text-ink-50">{entry.term}</dt>
-              <dd className="mt-1.5 leading-relaxed text-ink-600 dark:text-ink-400">
+              {/* No `leading-relaxed` here: some definitions quote a verse in
+                  «…», and 1.625 is below Cairo's own `normal` of 1.874. It did
+                  not clip, but it was the one place on the site where Qur'anic
+                  text sat under a tightened line box. */}
+              <dd className="mt-1.5 text-ink-600 dark:text-ink-400">
                 {entry.definition}
                 {entry.lesson && (
                   <Link

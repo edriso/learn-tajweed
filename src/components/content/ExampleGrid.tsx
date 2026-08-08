@@ -55,9 +55,10 @@ function Example({ item, fallbackRule }: { item: ExampleItem; fallbackRule?: str
         href={quranComUrl(ayah)}
         target="_blank"
         rel="noreferrer"
-        className="mt-1 block text-xs text-ink-600 no-underline transition hover:text-green-700 hover:underline dark:text-ink-400 dark:hover:text-green-400"
+        className="mt-1 block text-sm text-ink-600 no-underline transition hover:text-green-700 hover:underline dark:text-ink-400 dark:hover:text-green-400"
       >
         {ayah.surahName} {toArabicDigits(ayah.ayah)}
+        <span className="sr-only"> (يفتح في صفحةٍ جديدة)</span>
       </a>
     </li>
   )
@@ -66,7 +67,7 @@ function Example({ item, fallbackRule }: { item: ExampleItem; fallbackRule?: str
 /** A grid of short Qur'anic examples: the drill that makes a rule stick. */
 export function ExampleGrid({ spec }: { spec: ExampleGridSpec }) {
   return (
-    <ul className="my-7 grid list-none grid-cols-2 gap-3 ps-0 sm:grid-cols-3">
+    <ul role="list" className="my-7 grid list-none grid-cols-2 gap-3 ps-0 sm:grid-cols-3">
       {spec.items.map((item, index) => (
         <Example key={`${item.ref}-${index}`} item={item} fallbackRule={spec.rule} />
       ))}

@@ -18,7 +18,7 @@ const NAV = [
 
 function navClasses({ isActive }: { isActive: boolean }) {
   return cn(
-    'rounded-full px-3 py-1.5 text-sm font-semibold transition',
+    'rounded-full px-3 py-2.5 text-sm font-semibold transition',
     isActive
       ? 'bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-200'
       : 'text-ink-600 hover:bg-ink-100 hover:text-ink-900 dark:text-ink-400 dark:hover:bg-ink-800 dark:hover:text-ink-50',
@@ -64,13 +64,13 @@ export function Header() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1.5">
           <a
             href={REPO_URL}
             target="_blank"
             rel="noreferrer"
             title="الشيفرة المصدرية"
-            className="hidden rounded-full p-2 text-ink-600 transition hover:bg-ink-100 hover:text-ink-900 sm:block dark:text-ink-400 dark:hover:bg-ink-800 dark:hover:text-ink-50"
+            className="hidden rounded-full p-2.5 text-ink-600 transition hover:bg-ink-100 hover:text-ink-900 sm:block dark:text-ink-400 dark:hover:bg-ink-800 dark:hover:text-ink-50"
           >
             <GitHubIcon size={18} />
             <span className="sr-only">
@@ -85,7 +85,7 @@ export function Header() {
             onClick={() => setOpen((value) => !value)}
             aria-expanded={open}
             aria-label={open ? 'إغلاق القائمة' : 'فتح القائمة'}
-            className="rounded-full p-2 text-ink-600 transition hover:bg-ink-100 hover:text-ink-900 md:hidden dark:text-ink-400 dark:hover:bg-ink-800 dark:hover:text-ink-50"
+            className="rounded-full p-2.5 text-ink-600 transition hover:bg-ink-100 hover:text-ink-900 md:hidden dark:text-ink-400 dark:hover:bg-ink-800 dark:hover:text-ink-50"
           >
             {open ? <X size={20} /> : <Menu size={20} />}
           </button>
@@ -98,7 +98,7 @@ export function Header() {
           aria-label="التنقّل الرئيسي"
           className="border-t border-ink-200 px-4 py-3 md:hidden dark:border-ink-800"
         >
-          <ul className="mx-auto flex max-w-4xl flex-col gap-1">
+          <ul role="list" className="mx-auto flex max-w-4xl flex-col gap-1">
             {NAV.map((item) => (
               <li key={item.to}>
                 <NavLink

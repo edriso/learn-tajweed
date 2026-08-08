@@ -106,7 +106,7 @@ export function AyahCard({ spec }: { spec: AyahSpec }) {
               target="_blank"
               rel="noreferrer"
               title="افتح الآية في سياقها"
-              className="inline-flex size-9 items-center justify-center rounded-full text-ink-600 transition hover:bg-ink-100 hover:text-ink-900 dark:text-ink-400 dark:hover:bg-ink-800 dark:hover:text-ink-50"
+              className="inline-flex size-10 items-center justify-center rounded-full text-ink-600 transition hover:bg-ink-100 hover:text-ink-900 dark:text-ink-400 dark:hover:bg-ink-800 dark:hover:text-ink-50"
             >
               <ExternalLink size={16} aria-hidden="true" />
               <span className="sr-only">
@@ -123,12 +123,18 @@ export function AyahCard({ spec }: { spec: AyahSpec }) {
             …{' '}
           </span>
         )}
+        {/*
+          The <mark> carries no font weight: Amiri Quran ships one 400 face, so
+          asking for 500 would render the highlighted stretch in the Cairo
+          fallback during the font swap — a visible weight seam inside a verse.
+          The colour and the rule's name already carry the emphasis.
+        */}
         {segments.map((segment, index) => {
           const rule = segment.rule ? getRule(segment.rule) : undefined
           return (
             <Fragment key={index}>
               {rule ? (
-                <mark className={cn('font-medium', RULE_TEXT_CLASS[rule.color])}>{segment.text}</mark>
+                <mark className={cn(RULE_TEXT_CLASS[rule.color])}>{segment.text}</mark>
               ) : (
                 segment.text
               )}

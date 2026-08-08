@@ -96,7 +96,7 @@ export function LessonPage() {
             <BookOpen size={22} className="text-green-700 dark:text-green-400" aria-hidden="true" />
             للاستزادة
           </h2>
-          <ul className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <ul role="list" className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
             {lesson.resources.map((resource) => (
               <li key={resource.url}>
                 <a
@@ -120,10 +120,14 @@ export function LessonPage() {
 
       {/* ── Mark as done ─────────────────────────────────────────────── */}
       <div className="mt-14 rounded-card border border-ink-200 bg-white p-5 text-center dark:border-ink-800 dark:bg-ink-900">
+        {/* No `aria-pressed` alongside a label that flips wording: a toggle
+            button is supposed to keep one name and let the pressed state change.
+            Announcing both at once contradicts itself, and giving it a fixed
+            aria-label over a changing visible label would break Label in Name.
+            The wording, the fill and the check together carry the state. */}
         <button
           type="button"
           onClick={() => toggle(lesson.slug)}
-          aria-pressed={done}
           className={cn(
             'inline-flex items-center gap-2 rounded-full px-6 py-3 font-bold transition',
             done
@@ -152,7 +156,7 @@ export function LessonPage() {
               aria-hidden="true"
             />
             <span className="min-w-0">
-              <span className="block text-xs text-ink-600 dark:text-ink-400">الدرس السابق</span>
+              <span className="block text-sm text-ink-600 dark:text-ink-400">الدرس السابق</span>
               <span className="block truncate font-bold text-ink-900 dark:text-ink-50">
                 {prev.title}
               </span>
@@ -168,7 +172,7 @@ export function LessonPage() {
             className="group flex items-center justify-end gap-3 rounded-card border border-ink-200 bg-white p-4 text-end transition hover:border-green-400 sm:col-start-2 dark:border-ink-800 dark:bg-ink-900 dark:hover:border-green-700"
           >
             <span className="min-w-0">
-              <span className="block text-xs text-ink-600 dark:text-ink-400">الدرس التالي</span>
+              <span className="block text-sm text-ink-600 dark:text-ink-400">الدرس التالي</span>
               <span className="block truncate font-bold text-ink-900 dark:text-ink-50">
                 {next.title}
               </span>

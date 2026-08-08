@@ -37,10 +37,12 @@ export function LessonCard({
       <span className="sr-only">الدرس {toArabicDigits(number)}: </span>
 
       <div className="min-w-0">
-        <h3 className="font-bold text-ink-900 group-hover:text-green-800 dark:text-ink-50 dark:group-hover:text-green-300">
+        {/* h4, not h3: this card sits inside a unit whose title is the h3, so an
+            h3 here would make every lesson a sibling of its own unit. */}
+        <h4 className="font-bold text-ink-900 group-hover:text-green-800 dark:text-ink-50 dark:group-hover:text-green-300">
           <span aria-hidden="true">{lesson.emoji}</span> {lesson.title}
           {done && <span className="sr-only"> (أتممتَه)</span>}
-        </h3>
+        </h4>
         <p className="mt-1 text-sm leading-relaxed text-ink-600 dark:text-ink-400">
           {lesson.description}
         </p>

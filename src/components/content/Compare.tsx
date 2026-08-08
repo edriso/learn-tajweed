@@ -43,7 +43,7 @@ export function Compare({ spec }: { spec: CompareSpec }) {
             >
               {column.title}
             </h3>
-            <ul className="mt-3 list-none space-y-2 ps-0 text-ink-700 dark:text-ink-300">
+            <ul role="list" className="mt-3 list-none space-y-2 ps-0 text-ink-700 dark:text-ink-300">
               {column.points.map((point) => (
                 <li key={point} className="flex gap-2">
                   <span

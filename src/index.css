@@ -115,6 +115,22 @@
     }
   }
 
+  /*
+   * The theme is a saved choice, not the OS preference, so the two can disagree.
+   * Without this, a reader on a light OS who picks the dark theme gets native UI
+   * still drawn light: the search field's caret and its clear button on the
+   * glossary page, the scrollbars, and the accent colour of the reciter radios.
+   * Declaring color-scheme on the class rather than in a media query is what
+   * ties them to the theme the reader actually chose.
+   */
+  :root {
+    color-scheme: light;
+  }
+
+  .dark {
+    color-scheme: dark;
+  }
+
   body {
     font-family: var(--font-sans);
     background-color: var(--color-ink-50);

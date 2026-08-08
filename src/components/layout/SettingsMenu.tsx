@@ -44,6 +44,11 @@ export function SettingsMenu() {
     }
     // Tabbing past the last control should dismiss it, as a menu would.
     function onFocusOut(event: FocusEvent) {
+      // A null relatedTarget means focus was dropped rather than moved
+      // somewhere else: clicking the panel's own description text, or switching
+      // windows. `contains(null)` is false, so without this the panel closed
+      // under the reader's cursor and was gone again after every alt-tab.
+      if (event.relatedTarget === null) return
       if (!boxRef.current?.contains(event.relatedTarget as Node)) close()
     }
     document.addEventListener('mousedown', onPointerDown)
@@ -78,7 +83,7 @@ export function SettingsMenu() {
         aria-controls={panelId}
         aria-label="الإعدادات"
         title="الإعدادات"
-        className="rounded-full p-2 text-ink-600 transition hover:bg-ink-100 hover:text-ink-900 dark:text-ink-400 dark:hover:bg-ink-800 dark:hover:text-ink-50"
+        className="rounded-full p-2.5 text-ink-600 transition hover:bg-ink-100 hover:text-ink-900 dark:text-ink-400 dark:hover:bg-ink-800 dark:hover:text-ink-50"
       >
         <Settings2 size={18} />
       </button>
@@ -89,10 +94,15 @@ export function SettingsMenu() {
          * it would hang off the side of a phone. Below `sm` it is pinned to the
          * viewport instead, just under the header; from `sm` up it goes back to
          * being a popover anchored to the button.
+         *
+         * It scrolls inside itself because neither position can be scrolled by
+         * the page. The panel is about 400px tall, so on a phone held sideways
+         * the rule-colour switch at the bottom fell past the fold and there was
+         * no way at all to reach it.
          */
         <div
           id={panelId}
-          className="fixed inset-x-3 top-16 z-40 rounded-card border border-ink-200 bg-white p-4 shadow-lift sm:absolute sm:inset-x-auto sm:top-full sm:end-0 sm:mt-2 sm:w-80 dark:border-ink-700 dark:bg-ink-900"
+          className="fixed inset-x-3 top-16 z-40 max-h-[calc(100dvh-5rem)] overflow-y-auto overscroll-contain rounded-card border border-ink-200 bg-white p-4 shadow-lift sm:absolute sm:inset-x-auto sm:top-full sm:end-0 sm:mt-2 sm:w-80 dark:border-ink-700 dark:bg-ink-900"
         >
           {/*
             Real radio inputs rather than buttons with `aria-pressed`: the three

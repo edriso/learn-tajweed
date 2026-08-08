@@ -80,7 +80,7 @@ export function Home() {
       {/* ── How to use it ────────────────────────────────────────────── */}
       <section className="mt-12">
         <h2 className="text-xl font-bold text-ink-900 dark:text-ink-50">كيف تستعمل هذا الدليل</h2>
-        <ul className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <ul role="list" className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
           {HOW_TO_USE.map(({ icon: Icon, title, body }) => (
             <li
               key={title}
@@ -104,12 +104,12 @@ export function Home() {
 
         {/* Eleven units make a long page, so let readers jump straight to one. */}
         <nav aria-label="الانتقال إلى وحدة" className="mt-5">
-          <ul className="flex flex-wrap gap-2">
+          <ul role="list" className="flex flex-wrap gap-2">
             {UNITS.map((unit, unitIndex) => (
               <li key={unit.id}>
                 <a
                   href={`#unit-${unit.id}`}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-ink-400 bg-white px-3 py-1.5 text-sm font-semibold text-ink-700 transition hover:border-green-400 hover:text-green-800 dark:border-ink-800 dark:bg-ink-900 dark:text-ink-300 dark:hover:border-green-700 dark:hover:text-green-300"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-ink-500 bg-white px-3 py-2 text-sm font-semibold text-ink-700 transition hover:border-green-400 hover:text-green-800 dark:border-ink-500 dark:bg-ink-900 dark:text-ink-300 dark:hover:border-green-700 dark:hover:text-green-300"
                 >
                   <span className="text-ink-600 dark:text-ink-400">{toArabicDigits(unitIndex + 1)}</span>
                   {unit.title}
@@ -119,7 +119,7 @@ export function Home() {
           </ul>
         </nav>
 
-        <ol className="mt-8 space-y-12">
+        <ol role="list" className="mt-8 space-y-12">
           {UNITS.map((unit, unitIndex) => {
             const unitLessons = lessonsOfUnit(unit.id)
             if (unitLessons.length === 0) return null
@@ -141,7 +141,7 @@ export function Home() {
                   </div>
                 </div>
 
-                <ul className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <ul role="list" className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
                   {unitLessons.map((lesson) => (
                     <li key={lesson.slug}>
                       <LessonCard

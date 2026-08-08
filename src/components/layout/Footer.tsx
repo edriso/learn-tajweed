@@ -29,7 +29,11 @@ function FooterAyah() {
 export function Footer() {
   return (
     <footer className="mt-16 border-t border-ink-200 bg-ink-100/60 dark:border-ink-800 dark:bg-ink-900/40">
-      <div className="mx-auto max-w-4xl px-4 py-10">
+      {/* Extra bottom room below `xl`: the back-to-top button is fixed in the
+          bottom corner, and at the end of the page it sat on top of the GitHub
+          link and swallowed its clicks. The overlap only stops once the centred
+          896px column is pushed clear of the button, at about 1090px wide. */}
+      <div className="mx-auto max-w-4xl px-4 pt-10 pb-24 xl:pb-10">
         <FooterAyah />
 
         <div className="mt-8 flex flex-col items-center gap-4 border-t border-ink-200 pt-6 text-sm text-ink-600 dark:text-ink-400 sm:flex-row sm:justify-between dark:border-ink-800 dark:text-ink-400">

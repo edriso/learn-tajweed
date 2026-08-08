@@ -65,32 +65,54 @@ export function AudioButton({ ayah, className }: { ayah: QuranAyah; className?: 
   const label =
     state === 'error'
       ? 'تعذَّر تشغيل التلاوة'
-      : state === 'playing'
-        ? 'إيقاف التلاوة'
-        : `استمع للآية بصوت ${reciterName}`
+      : state === 'loading'
+        ? 'جارٍ تحميل التلاوة'
+        : state === 'playing'
+          ? 'إيقاف التلاوة'
+          : `استمع للآية بصوت ${reciterName}`
+
+  /**
+   * Changing `aria-label` on a button that already has focus is not reliably
+   * re-announced, so the state is reported separately. Without this a reader who
+   * presses play and hits a network failure gets silence and no explanation —
+   * the spinner and the greyed-out button are both purely visual.
+   */
+  const status =
+    state === 'error'
+      ? 'تعذَّر تشغيل التلاوة'
+      : state === 'loading'
+        ? 'جارٍ التحميل'
+        : state === 'playing'
+          ? 'يُتلى الآن'
+          : ''
 
   return (
-    <button
-      type="button"
-      onClick={toggle}
-      aria-disabled={state === 'error' || undefined}
-      aria-label={label}
-      title={label}
-      className={cn(
-        'inline-flex size-9 shrink-0 items-center justify-center rounded-full border transition',
-        state === 'error'
-          ? 'cursor-not-allowed border-ink-200 text-ink-400 dark:border-ink-700 dark:text-ink-600'
-          : 'border-green-300 bg-green-50 text-green-700 hover:bg-green-100 dark:border-green-800 dark:bg-green-950 dark:text-green-300 dark:hover:bg-green-900',
-        className,
-      )}
-    >
-      {state === 'loading' ? (
-        <Loader2 size={16} className="animate-spin" />
-      ) : state === 'playing' ? (
-        <Pause size={16} />
-      ) : (
-        <Play size={16} />
-      )}
-    </button>
+    <>
+      <button
+        type="button"
+        onClick={toggle}
+        aria-disabled={state === 'error' || undefined}
+        aria-label={label}
+        title={label}
+        className={cn(
+          'inline-flex size-10 shrink-0 items-center justify-center rounded-full border transition',
+          state === 'error'
+            ? 'cursor-not-allowed border-ink-200 text-ink-400 dark:border-ink-700 dark:text-ink-600'
+            : 'border-green-300 bg-green-50 text-green-700 hover:bg-green-100 dark:border-green-800 dark:bg-green-950 dark:text-green-300 dark:hover:bg-green-900',
+          className,
+        )}
+      >
+        {state === 'loading' ? (
+          <Loader2 size={16} className="animate-spin" />
+        ) : state === 'playing' ? (
+          <Pause size={16} />
+        ) : (
+          <Play size={16} />
+        )}
+      </button>
+      <span role="status" className="sr-only">
+        {status}
+      </span>
+    </>
   )
 }

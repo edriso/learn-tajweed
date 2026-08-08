@@ -29,7 +29,7 @@ export function LetterSet({ spec }: { spec: LetterSetSpec }) {
         </span>
       </div>
 
-      <ul className="mt-4 flex list-none flex-wrap gap-2 ps-0">
+      <ul role="list" className="mt-4 flex list-none flex-wrap gap-2 ps-0">
         {spec.items.map((letter, index) => (
           <li
             key={`${letter}-${index}`}

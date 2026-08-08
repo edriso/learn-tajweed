@@ -1,5 +1,5 @@
 import { Children, isValidElement, type ReactElement, type ReactNode } from 'react'
-import ReactMarkdown from 'react-markdown'
+import ReactMarkdown, { type Components } from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { parse } from 'yaml'
 import { AyahCard, type AyahSpec } from './AyahCard'
@@ -37,6 +37,44 @@ function readCodeBlock(children: ReactNode): { lang?: string; source: string } |
   return { lang, source: String(props.children ?? '') }
 }
 
+/**
+ * The overrides that must apply to author-written Markdown wherever it is
+ * rendered — including inside a callout body, which gets its own nested
+ * renderer. They live at module level precisely so that nested instance can be
+ * handed the same set: when it was not, a table written inside a ```tip fence
+ * came out as a bare <table> with no scroll wrapper and spilled straight out of
+ * the callout on a phone.
+ */
+const COMPONENTS: Components = {
+  a({ node: _node, href, children, ...props }) {
+    const external = href?.startsWith('http')
+    // A link whose text is all ASCII is a domain or a product name.
+    // Marking it lang="en" stops an Arabic voice reading it phonetically.
+    const latin = typeof children === 'string' && /^[\x20-\x7E]+$/.test(children)
+    return (
+      <a
+        href={href}
+        {...(latin ? { lang: 'en' } : {})}
+        {...props}
+        {...(external ? { target: '_blank', rel: 'noreferrer' } : {})}
+      >
+        {children}
+        {external && <span className="sr-only"> (يفتح في صفحةٍ جديدة)</span>}
+      </a>
+    )
+  },
+
+  // Wide comparison tables scroll inside their own box instead of
+  // pushing the whole page sideways on a phone.
+  table({ node: _node, children, ...props }) {
+    return (
+      <ScrollableTable>
+        <table {...props}>{children}</table>
+      </ScrollableTable>
+    )
+  },
+}
+
 export function Markdown({ children, slug }: { children: string; slug: string }) {
   // Quiz blocks need a stable index so their question ids stay unique.
   let quizBlock = 0
@@ -46,33 +84,7 @@ export function Markdown({ children, slug }: { children: string; slug: string })
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{
-          a({ node: _node, href, children, ...props }) {
-            const external = href?.startsWith('http')
-            // A link whose text is all ASCII is a domain or a product name.
-            // Marking it lang="en" stops an Arabic voice reading it phonetically.
-            const latin = typeof children === 'string' && /^[\x20-\x7E]+$/.test(children)
-            return (
-              <a
-                href={href}
-                {...(latin ? { lang: 'en' } : {})}
-                {...props}
-                {...(external ? { target: '_blank', rel: 'noreferrer' } : {})}
-              >
-                {children}
-                {external && <span className="sr-only"> (يفتح في صفحةٍ جديدة)</span>}
-              </a>
-            )
-          },
-
-          // Wide comparison tables scroll inside their own box instead of
-          // pushing the whole page sideways on a phone.
-          table({ node: _node, children, ...props }) {
-            return (
-              <ScrollableTable>
-                <table {...props}>{children}</table>
-              </ScrollableTable>
-            )
-          },
+          ...COMPONENTS,
 
           // Custom blocks replace the whole <pre>, so no invalid markup is
           // produced by putting a <div> inside it.
@@ -86,7 +98,9 @@ export function Markdown({ children, slug }: { children: string; slug: string })
               // Callout bodies are Markdown, so they can hold lists and links.
               return (
                 <Callout kind={CALLOUTS[lang]}>
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{source.trim()}</ReactMarkdown>
+                  <ReactMarkdown remarkPlugins={[remarkGfm]} components={COMPONENTS}>
+                    {source.trim()}
+                  </ReactMarkdown>
                 </Callout>
               )
             }

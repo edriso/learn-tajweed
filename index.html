@@ -5,8 +5,14 @@
     <link rel="icon" type="image/svg+xml" href="/learn-tajweed/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="light dark" />
-    <meta name="theme-color" content="#f7f6f1" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#101613" media="(prefers-color-scheme: dark)" />
+    <!--
+      One theme-color, set from the saved theme by the script below and kept in
+      step by src/hooks/useTheme.ts. Media-query variants would follow the OS
+      instead, and the theme here is a choice that can disagree with it: the
+      browser chrome would then sit light above a dark page. The two values are
+      --color-ink-50 and --color-ink-950 from src/index.css, resolved to sRGB.
+    -->
+    <meta name="theme-color" content="#fbfaf7" />
     <meta
       name="description"
       content="تعلَّم أحكام التجويد برواية حفص عن عاصم خطوةً بخطوة، بلغةٍ بسيطةٍ وأمثلةٍ من القرآن الكريم. دليلٌ مجانيٌّ مرتَّبٌ من الصفر إلى إتقان التلاوة."
@@ -29,6 +35,9 @@
           var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
           var isDark = saved ? saved === 'dark' : prefersDark
           document.documentElement.classList.toggle('dark', isDark)
+          document
+            .querySelector('meta[name="theme-color"]')
+            .setAttribute('content', isDark ? '#0a100c' : '#fbfaf7')
           var plain = localStorage.getItem('tajweed-rule-colours') === 'off'
           document.documentElement.classList.toggle('plain-rules', plain)
         } catch (e) {

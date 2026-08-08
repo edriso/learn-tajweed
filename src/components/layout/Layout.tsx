@@ -31,7 +31,10 @@ export function Layout() {
     <div className="flex min-h-screen flex-col">
       <a
         href="#main"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-3 focus:start-3 focus:z-50 focus:rounded-full focus:bg-green-600 focus:px-4 focus:py-2 focus:text-white"
+        /* `fixed`, not `absolute`: absolute pins it to the top of the document,
+           so Tabbing into the page after scrolling drags the viewport back up
+           (smoothly, given scroll-behavior: smooth). Fixed keeps it in view. */
+        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:start-3 focus:z-50 focus:rounded-full focus:bg-green-600 focus:px-4 focus:py-2 focus:text-white"
       >
         تخطَّ إلى المحتوى
       </a>

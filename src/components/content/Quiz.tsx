@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useId, useMemo, useRef, useState } from 'react'
 import { Check, RotateCcw, X } from 'lucide-react'
 import { getAyah, getSpan, quranComUrl } from '@/lib/quran'
 import type { QuizQuestion } from '@/lib/quiz'
@@ -18,9 +18,10 @@ function QuestionText({ question }: { question: QuizQuestion }) {
         href={quranComUrl(ayah)}
         target="_blank"
         rel="noreferrer"
-        className="mt-1 block text-xs text-ink-600 no-underline transition hover:text-green-700 hover:underline dark:text-ink-400 dark:hover:text-green-400"
+        className="mt-1 block text-sm text-ink-600 no-underline transition hover:text-green-700 hover:underline dark:text-ink-400 dark:hover:text-green-400"
       >
         {ayah.surahName} {toArabicDigits(ayah.ayah)}
+        <span className="sr-only"> (يفتح في صفحةٍ جديدة)</span>
       </a>
     </p>
   )
@@ -37,6 +38,10 @@ function Question({
 }) {
   const [picked, setPicked] = useState<number | null>(null)
   const answered = picked !== null
+  // Ties the options to the question they belong to. Without it each option
+  // button announces only its own label, which on the practice page means forty
+  // buttons in a row with no idea what any of them is answering.
+  const questionId = useId()
 
   function choose(option: number) {
     if (answered) return
@@ -46,7 +51,7 @@ function Question({
 
   return (
     <li className="border-t border-ink-200 p-4 first:border-t-0 sm:p-5 dark:border-ink-800">
-      <p className="mb-3 font-semibold text-ink-900 dark:text-ink-50">
+      <p id={questionId} className="mb-3 font-semibold text-ink-900 dark:text-ink-50">
         <span className="text-green-700 dark:text-green-400">
           {toArabicDigits(index + 1)}.{' '}
         </span>
@@ -55,7 +60,14 @@ function Question({
 
       <QuestionText question={question} />
 
-      <ul className="grid list-none grid-cols-1 gap-2 ps-0 sm:grid-cols-2">
+      {/* `group` rather than the default list role: what matters to a screen
+          reader here is that these four buttons answer the question above them,
+          which `aria-labelledby` then reads out before the first option. */}
+      <ul
+        role="group"
+        aria-labelledby={questionId}
+        className="grid list-none grid-cols-1 gap-2 ps-0 sm:grid-cols-2"
+      >
         {question.options.map((option, optionIndex) => {
           const isAnswer = optionIndex === question.answer
           const isPicked = optionIndex === picked
@@ -76,7 +88,7 @@ function Question({
                     isPicked &&
                     !isAnswer &&
                     'border-rule-idgham bg-rule-idgham/5 text-rule-idgham dark:border-rule-idgham-dark dark:text-rule-idgham-dark',
-                  answered && !isAnswer && !isPicked && 'border-ink-200 opacity-70 dark:border-ink-800',
+                  answered && !isAnswer && !isPicked && 'border-ink-200 opacity-80 dark:border-ink-800',
                 )}
               >
                 <span>
@@ -96,24 +108,23 @@ function Question({
         })}
       </ul>
 
-      <p
-        role="status"
-        className={cn(
-          'mt-3 rounded-xl bg-ink-100/70 px-4 py-3 text-sm text-ink-700 dark:bg-ink-800/50 dark:text-ink-300',
-          !answered && 'hidden',
-        )}
-      >
+      {/* The live region has to be in the accessibility tree BEFORE the answer
+          lands in it. A region that is `display:none` until it has something to
+          say is created and filled in the same tick, and screen readers reliably
+          miss that — which would silently drop the whole point of the quiz. So
+          the wrapper is always rendered and only its contents appear. */}
+      <div role="status">
         {answered && (
-          <>
+          <p className="mt-3 rounded-xl bg-ink-100/70 px-4 py-3 text-sm text-ink-700 dark:bg-ink-800/50 dark:text-ink-300">
             <span className="font-bold">
               {picked === question.answer
                 ? 'إجابةٌ صحيحة. '
                 : `الصواب «${question.options[question.answer]}». `}
             </span>
             {question.why}
-          </>
+          </p>
         )}
-      </p>
+      </div>
     </li>
   )
 }
@@ -131,6 +142,7 @@ export function Quiz({
   // Remounts every child on retry, which clears each question's own state.
   const [attempt, setAttempt] = useState(0)
   const [score, setScore] = useState({ right: 0, done: 0 })
+  const headingRef = useRef<HTMLHeadingElement>(null)
 
   const finished = score.done === questions.length && questions.length > 0
   const key = useMemo(() => `attempt-${attempt}`, [attempt])
@@ -142,6 +154,10 @@ export function Quiz({
   function retry() {
     setScore({ right: 0, done: 0 })
     setAttempt((value) => value + 1)
+    // Pressing this button unmounts it, which drops focus onto <body> and sends
+    // the next Tab back to the top of the document. Move focus to the quiz's own
+    // heading instead, which is also where the reader wants to be.
+    headingRef.current?.focus()
   }
 
   if (questions.length === 0) return null
@@ -149,20 +165,31 @@ export function Quiz({
   return (
     <section className="my-8 overflow-hidden rounded-card border border-ink-200 bg-white shadow-soft dark:border-ink-800 dark:bg-ink-900">
       <div className="flex items-center justify-between gap-3 border-b border-ink-200 bg-ink-100/60 px-4 py-3 dark:border-ink-800 dark:bg-ink-800/40">
-        <Heading className="font-bold text-ink-900 dark:text-ink-50">{title ?? 'اختبِر نفسك'}</Heading>
+        <Heading
+          ref={headingRef}
+          tabIndex={-1}
+          className="font-bold text-ink-900 outline-none dark:text-ink-50"
+        >
+          {title ?? 'اختبِر نفسك'}
+        </Heading>
         <span className="inline-block min-w-[4.5ch] text-end text-sm font-semibold text-ink-600 dark:text-ink-400">
           {toArabicDigits(score.right)} / {toArabicDigits(questions.length)}
         </span>
       </div>
 
-      <ul key={key} className="list-none ps-0">
+      {/* Tailwind's preflight removes list-style from every ul, and Safari drops
+          the list role along with it, so it is restored by hand. */}
+      <ul key={key} role="list" className="list-none ps-0">
         {questions.map((question, index) => (
           <Question key={question.id} question={question} index={index} onAnswer={record} />
         ))}
       </ul>
 
       {finished && (
-        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-ink-200 bg-ink-100/60 px-4 py-3 dark:border-ink-800 dark:bg-ink-800/40">
+        <div
+          role="status"
+          className="flex flex-wrap items-center justify-between gap-3 border-t border-ink-200 bg-ink-100/60 px-4 py-3 dark:border-ink-800 dark:bg-ink-800/40"
+        >
           <p className="font-semibold text-ink-800 dark:text-ink-200">
             {score.right === questions.length
               ? 'ممتاز، أصبتَ في كلّ الأسئلة. انتقِل إلى الدرس التالي.'
