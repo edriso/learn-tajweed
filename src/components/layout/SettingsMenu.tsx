@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useId, useRef, useState } from 'react'
 import { Settings2 } from 'lucide-react'
+import { ProgressTransfer } from './ProgressTransfer'
 import {
   getReciter,
   getRuleColours,
@@ -10,8 +11,8 @@ import {
 import { cn } from '@/lib/utils'
 
 /**
- * Two reader choices in one small panel: which reciter the play buttons use, and
- * whether the rules are coloured.
+ * The reader's own choices in one small panel: which reciter the play buttons
+ * use, whether the rules are coloured, and where their progress is kept.
  *
  * The colour switch is here rather than buried in a page because colouring the
  * Qur'an is a modern study aid that some readers prefer to do without. Turning
@@ -188,6 +189,10 @@ export function SettingsMenu() {
               />
             </span>
           </button>
+
+          <hr className="my-3 border-ink-200 dark:border-ink-800" />
+
+          <ProgressTransfer />
         </div>
       )}
     </div>
