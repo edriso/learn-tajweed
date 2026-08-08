@@ -70,9 +70,80 @@
         }
       })()
     </script>
+
+    <!--
+      The boot placeholder, styled here rather than in src/index.css so it needs
+      nothing but the HTML itself. React's createRoot clears #root on mount, so
+      this is only ever on screen while the JavaScript is still arriving.
+
+      It fades in after 450ms. On a normal connection the app is up before that
+      and the reader never sees it at all; a placeholder that flashes for 80ms
+      is worse than none. On a slow one it replaces a blank page.
+    -->
+    <style>
+      .boot {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        background: #fbfaf7;
+        font-family: 'Cairo Variable', system-ui, sans-serif;
+        color: #5e5c56;
+        opacity: 0;
+        animation: boot-in 0.3s ease 0.45s forwards;
+      }
+      .dark .boot {
+        background: #0a100c;
+        color: #8b8983;
+      }
+      .boot-ring {
+        width: 2.25rem;
+        height: 2.25rem;
+        border: 3px solid #e7e5e0;
+        border-top-color: #216342;
+        border-radius: 50%;
+        animation: boot-spin 0.9s linear infinite;
+      }
+      .dark .boot-ring {
+        border-color: #2a2f2b;
+        border-top-color: #2c7f56;
+      }
+      .boot-text {
+        font-size: 0.95rem;
+        font-weight: 600;
+      }
+      @keyframes boot-in {
+        to {
+          opacity: 1;
+        }
+      }
+      @keyframes boot-spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      /* Someone who has asked for less motion gets the words, not the spinner. */
+      @media (prefers-reduced-motion: reduce) {
+        .boot {
+          animation: none;
+          opacity: 1;
+        }
+        .boot-ring {
+          display: none;
+        }
+      }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div class="boot" role="status">
+        <span class="boot-ring" aria-hidden="true"></span>
+        <span class="boot-text">جارٍ تحميل الدليل…</span>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

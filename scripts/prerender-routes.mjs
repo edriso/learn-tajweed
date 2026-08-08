@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 /**
  * Writes a copy of dist/index.html at every route the site has, so GitHub Pages
- * answers a deep link with 200 instead of 404, and gives each copy its own
- * head and a static Arabic body.
+ * answers a deep link with 200 instead of 404, and gives each copy its own head.
  *
  * GitHub Pages serves static files only: it knows nothing about client-side
  * routing. The usual fix is to copy index.html to 404.html, and that does make
@@ -14,7 +13,7 @@
  * every route a real file and a real 200. The 404.html copy stays as the
  * fallback for anything genuinely missing, where a 404 is the correct answer.
  *
- * Three things each copy then gets:
+ * Two things each copy then gets:
  *
  * 1. Its own <title>, description, Open Graph tags and canonical, from the
  *    lesson's own frontmatter. React sets `document.title` on navigation, but
@@ -22,13 +21,15 @@
  *    JavaScript: they read the HTML as served. Without this every one of the
  *    38 routes previews as the home page.
  *
- * 2. A static Arabic rendering of the lesson inside #root. Google decides a
- *    page's language from its visible content, not from `lang="ar"`, and
- *    crawlers that never run JavaScript (Bing, Yandex, the LLM crawlers) would
- *    otherwise see an empty div. `createRoot` replaces this wholesale on mount,
- *    so there is no hydration contract to honour — it is for crawlers only.
+ * 2. JSON-LD: a breadcrumb per lesson, and the site identity on the home page.
  *
- * 3. JSON-LD: a breadcrumb per lesson, and the site identity on the home page.
+ * What this deliberately does NOT do is write a static copy of the lesson into
+ * #root. That was tried, to give crawlers that never run JavaScript some real
+ * Arabic to read. But `createRoot` replaces #root wholesale on mount, so every
+ * visitor watched a wall of unstyled text turn into the actual page — about a
+ * second and a half of it on a slow connection. Content for those crawlers has
+ * to come from server-rendering the real components and hydrating them, not
+ * from a second rendering that the first paint then throws away.
  *
  * Every URL here ends in a slash. GitHub Pages serves a directory index only at
  * the trailing-slash form and 301s the bare form, so a canonical without it
@@ -65,7 +66,7 @@ async function readDoc(file) {
 
 /**
  * The units, in curriculum order, read out of the one file that defines them.
- * Used for the lesson breadcrumb and for the home page's static outline.
+ * Used for the lesson breadcrumb.
  */
 async function readUnits() {
   const source = await readFile(resolve(ROOT, 'src/lib/units.ts'), 'utf8')
@@ -105,125 +106,6 @@ function escapeHtml(value) {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
-}
-
-/**
- * One line of Markdown reduced to plain text: links to their label, emphasis
- * and code ticks removed, blockquote marker dropped. Table cells go through
- * this too — without it, a cell written `**الصغرى**` rendered its asterisks
- * literally into the static body.
- */
-function inline(text) {
-  return escapeHtml(
-    text
-      .replace(/!?\[([^\]]*)\]\([^)]*\)/g, '$1')
-      .replace(/[*_`]/g, '')
-      .replace(/^>\s*/, ''),
-  )
-}
-
-/**
- * Prose-bearing keys inside the custom blocks. Four fifths of a lesson lives in
- * fenced YAML rather than in paragraphs, so skipping the fences entirely would
- * throw away most of the Arabic on the page.
- *
- * `text` is deliberately absent: in an `ayah` block that field holds Qur'anic
- * words, and the verse itself belongs to the corpus, not to this file.
- *
- * `options` is deliberately absent too. A quiz's wrong answers are only wrong
- * in the presence of the question and the buttons; stripped into bare
- * paragraphs they read as flat assertions about how to recite the Qur'an, and
- * this text is now fed to crawlers that summarise. The question (`q`) and the
- * explanation (`why`) carry the teaching without that risk.
- */
-const PROSE_KEYS = new Set(['title', 'note', 'mnemonic', 'q', 'why', 'description'])
-
-/** Fences whose body is Markdown rather than YAML. Mirrors CALLOUTS in src/components/content/Markdown.tsx. */
-const CALLOUT_LANGS = new Set(['rule', 'tip', 'note', 'warning'])
-
-/** Every prose string in a parsed block, depth-first. */
-function proseFrom(value, key, into) {
-  if (typeof value === 'string') {
-    if (PROSE_KEYS.has(key) && value.trim()) into.push(value.trim())
-    return
-  }
-  if (Array.isArray(value)) {
-    for (const item of value) proseFrom(item, key, into)
-    return
-  }
-  if (value && typeof value === 'object') {
-    for (const [k, v] of Object.entries(value)) proseFrom(v, k, into)
-  }
-}
-
-/**
- * A deliberately small Markdown-to-HTML pass, for the static body only.
- *
- * It covers what carries the Arabic prose — headings, paragraphs, list items,
- * table cells, and the human-readable fields of the custom blocks. It is not
- * trying to reproduce the React rendering; it only has to give a crawler that
- * never runs JavaScript real Arabic sentences to read.
- */
-function staticBody(markdown) {
-  const out = []
-  let fenceLang = null
-  let fenceLines = null
-
-  for (const line of markdown.split('\n')) {
-    const fence = line.match(/^\s*```(\w*)/)
-    if (fence) {
-      if (fenceLang === null) {
-        fenceLang = fence[1] || ''
-        fenceLines = []
-      } else {
-        // Closing fence: pull the readable strings out of the block.
-        const source = fenceLines.join('\n')
-        if (CALLOUT_LANGS.has(fenceLang)) {
-          // A callout body is Markdown, not YAML — run it through this pass.
-          out.push(staticBody(source))
-        } else if (fenceLang && fenceLang !== 'text') {
-          const strings = []
-          try {
-            proseFrom(parse(source), '', strings)
-          } catch {
-            // A malformed block is build-quran.mjs's problem, not this pass's.
-          }
-          // Through inline() too: a block's `note` may itself contain **bold**.
-          for (const s of strings) out.push(`<p>${inline(s)}</p>`)
-        }
-        fenceLang = null
-        fenceLines = null
-      }
-      continue
-    }
-    if (fenceLang !== null) {
-      fenceLines.push(line)
-      continue
-    }
-
-    const text = line.trim()
-    if (!text) continue
-
-    const heading = text.match(/^(#{1,6})\s+(.*)$/)
-    if (heading) {
-      const level = Math.min(heading[1].length + 1, 6)
-      out.push(`<h${level}>${inline(heading[2])}</h${level}>`)
-      continue
-    }
-    if (/^[-*]\s+/.test(text)) {
-      out.push(`<li>${inline(text.replace(/^[-*]\s+/, ''))}</li>`)
-      continue
-    }
-    if (/^\|/.test(text)) {
-      // A table row. Skip the |---|---| separator; render cells as one line.
-      if (/^\|[\s|:-]+\|$/.test(text)) continue
-      const cells = text.split('|').slice(1, -1).map((c) => c.trim()).filter(Boolean)
-      if (cells.length) out.push(`<p>${inline(cells.join(' · '))}</p>`)
-      continue
-    }
-    out.push(`<p>${inline(text)}</p>`)
-  }
-  return out.join('\n')
 }
 
 function jsonLd(data) {
@@ -272,7 +154,45 @@ for (const file of lessonFiles) {
   })
 }
 
-const template = await readFile(SOURCE, 'utf8')
+/**
+ * Preload the two Arabic faces.
+ *
+ * Both are declared `font-display: swap`, and the browser only discovers them
+ * after it has fetched and parsed the stylesheet — so the first paint used a
+ * fallback and the text visibly reflowed when Cairo and Amiri Quran arrived.
+ * Preloading starts both in parallel with the CSS instead. Only the Arabic
+ * subsets: the Latin ones are for the handful of code spans and URLs, and
+ * preloading those would compete for bandwidth with the fonts every line of the
+ * page actually needs.
+ *
+ * The filenames carry a content hash, so they are read back out of the build
+ * rather than written down anywhere.
+ */
+async function fontPreloads() {
+  const assets = await readdir(resolve(DIST, 'assets'))
+  const wanted = ['cairo-arabic-wght-normal', 'amiri-quran-arabic-400-normal']
+  const links = []
+  for (const stem of wanted) {
+    const file = assets.find((name) => name.startsWith(stem) && name.endsWith('.woff2'))
+    if (!file) {
+      throw new Error(
+        `prerender: لم يُعثر على ملفّ الخطّ «${stem}*.woff2» في dist/assets. ` +
+          `غالبًا تغيّرت أسماء الخطوط — حدِّث scripts/prerender-routes.mjs.`,
+      )
+    }
+    links.push(
+      `<link rel="preload" as="font" type="font/woff2" crossorigin href="${BASE}assets/${file}" />`,
+    )
+  }
+  return links.join('\n    ')
+}
+
+const preloads = await fontPreloads()
+
+const template = (await readFile(SOURCE, 'utf8')).replace(
+  '</head>',
+  `  ${preloads}\n  </head>`,
+)
 
 // This pass rewrites dist/index.html in place, so running it twice over the same
 // dist would stack a second canonical on top of the first. Vite regenerates the
@@ -297,8 +217,6 @@ function replaceTag(html, pattern, replacement, label) {
   }
   return html.replace(pattern, replacement)
 }
-
-const ROOT_DIV = '<div id="root"></div>'
 
 function render(route) {
   const { path, title, description, ogType } = route
@@ -353,12 +271,6 @@ function render(route) {
     })),
   })
   html = html.replace('</head>', `  ${ld}\n  </head>`)
-
-  if (route.body) {
-    const body =
-      `<h1>${escapeHtml(title)}</h1>\n<p>${d}</p>\n${staticBody(route.body)}`
-    html = html.replace(ROOT_DIV, `<div id="root">${body}</div>`)
-  }
   return html
 }
 
@@ -406,35 +318,6 @@ home = home.replace('</head>', `  ${homeLd}\n  </head>`)
  * This is the page most likely to be indexed for a general Arabic query about
  * tajweed, and without it the site's front door is an empty div.
  */
-const lessonRoutes = routes.filter((route) => route.unitId)
-const outline = [...units.entries()]
-  .map(([id, unit]) => {
-    const inUnit = lessonRoutes
-      .filter((route) => route.unitId === id)
-      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-    if (inUnit.length === 0) return ''
-    const items = inUnit
-      .map(
-        (route) =>
-          `<li><a href="${BASE}${route.path}/">${escapeHtml(route.title)}</a> — ` +
-          `${escapeHtml(route.description)}</li>`,
-      )
-      .join('\n')
-    return (
-      `<h2>${escapeHtml(unit.title)}</h2>\n<p>${escapeHtml(unit.description)}</p>\n<ul>\n${items}\n</ul>`
-    )
-  })
-  .filter(Boolean)
-  .join('\n')
-
-home = home.replace(
-  ROOT_DIV,
-  `<div id="root"><h1>تعلَّم أحكام التجويد خطوةً بخطوة</h1>\n` +
-    `<p>دليلٌ مجّانيٌّ لأحكام تجويد القرآن الكريم على رواية حفص عن عاصم من طريق ` +
-    `الشاطبيّة، مكتوبٌ لمن يقرأ العربيّة ويعرف التشكيل لكنّه لا يعرف أسماء الأحكام ` +
-    `ولا متى تُطبَّق. ${escapeHtml(String(lessonRoutes.length))} درسًا في ` +
-    `${escapeHtml(String(units.size))} وحدة، من الأسهل إلى الأصعب.</p>\n${outline}</div>`,
-)
 await writeFile(SOURCE, home, 'utf8')
 
 // The fallback for anything genuinely missing. It gets its own title so a
@@ -499,5 +382,5 @@ await writeFile(
 
 console.log(
   `✓ Pre-rendered ${routes.length} routes plus the 404 fallback: own title, canonical, ` +
-    `JSON-LD and static Arabic body. Wrote sitemap.xml and robots.txt.`,
+    `JSON-LD and font preloads. Wrote sitemap.xml and robots.txt.`,
 )
