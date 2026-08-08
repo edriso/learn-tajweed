@@ -1,11 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { Menu, X } from 'lucide-react'
 import { Link, NavLink, useLocation } from 'react-router'
-import { GitHubIcon } from './GitHubIcon'
 import { Logo } from './Logo'
 import { SettingsMenu } from './SettingsMenu'
 import { ThemeToggle } from './ThemeToggle'
-import { REPO_URL } from '@/lib/site'
 import { cn } from '@/lib/utils'
 
 const NAV = [
@@ -64,19 +62,11 @@ export function Header() {
           ))}
         </nav>
 
+        {/* No repository link up here. It is a link for the handful of readers
+            who want the source, and the footer already carries it; in the header
+            it competed for space with the settings, the theme toggle and the
+            menu button on exactly the narrow screens that could least spare it. */}
         <div className="flex items-center gap-1.5">
-          <a
-            href={REPO_URL}
-            target="_blank"
-            rel="noreferrer"
-            title="الشيفرة المصدريّة"
-            className="hidden rounded-full p-2.5 text-ink-600 transition hover:bg-ink-100 hover:text-ink-900 sm:block dark:text-ink-400 dark:hover:bg-ink-800 dark:hover:text-ink-50"
-          >
-            <GitHubIcon size={18} />
-            <span className="sr-only">
-              الشيفرة المصدريّة على <span lang="en">GitHub</span>
-            </span>
-          </a>
           <SettingsMenu />
           <ThemeToggle />
           <button

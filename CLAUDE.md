@@ -131,8 +131,9 @@ src/
   lib/glossary.ts         terms that are not rule names
   lib/quiz.ts             extracts every quiz question for the practice page
   components/content/     the custom Markdown blocks (ayah, examples, letters, …)
-  components/layout/      header, footer, theme toggle, back-to-top
-  pages/                  Home, LessonPage, Practice, Cheatsheet, Glossary, About
+  components/layout/      header, footer, settings panel, theme toggle, back-to-top
+  pages/                  Home, LessonPage, Practice, Cheatsheet, Glossary, About,
+                          NotFound, RouteError
 ```
 
 Decisions worth keeping:
@@ -168,7 +169,23 @@ Decisions worth keeping:
   cost 60 KB gzipped on first load — 40% of the entry chunk — to render a list
   of titles. If you need a lesson's title or unit, use `lessons` from
   `lib/lessons.ts`.
-- **No backend, no accounts, no analytics.** Progress is `localStorage` only.
+- **A stale build must not become a broken link.** Every route past the home page is
+  loaded on demand and GitHub Pages keeps only the newest deploy, so a tab left open
+  across a deploy asks for a chunk that no longer exists and the import throws. The
+  `errorElement` in `src/main.tsx` catches it, recognises the message and reloads the
+  page once — the router commits the navigation before handing the error over, so the
+  address bar already holds the route the reader clicked and a plain reload lands on
+  it. Guarded by a `sessionStorage` timestamp: a second failure within ten seconds is
+  a real error and gets the error page instead of another reload. Never call
+  `preventDefault()` on Vite's `vite:preloadError` — that makes the import resolve to
+  `undefined` and the failure resurfaces as an unrecognisable `TypeError`.
+- **No backend, no accounts, no analytics.** Progress is `localStorage` only. The one
+  way it leaves the device is the reader's own doing: export and import buttons in the
+  settings panel (`components/layout/ProgressTransfer.tsx`) write and read a small JSON
+  file, `{ app, version, savedAt, lessons: [slug] }`. Importing is a **union**, never a
+  replacement, and unknown slugs are dropped — so an old file, or a second device's,
+  can never lose work or invent a lesson. If you rename a lesson slug, old files simply
+  stop matching that one lesson; nothing else breaks.
 
 ## Adding a rule
 
