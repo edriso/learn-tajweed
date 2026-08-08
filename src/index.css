@@ -109,11 +109,20 @@
     -webkit-text-size-adjust: 100%;
   }
 
-  @media (prefers-reduced-motion: no-preference) {
-    html {
-      scroll-behavior: smooth;
-    }
-  }
+  /*
+   * There is deliberately no `scroll-behavior: smooth` on <html>.
+   *
+   * It applies to every scroll the document makes, including the one the router
+   * performs on a route change — and that one is `window.scrollTo(0, y)`, which
+   * obeys this property. The new page rendered first and the viewport then slid
+   * up to it over about eight hundred milliseconds, so a reader who opened a
+   * lesson from halfway down the curriculum watched the middle of that lesson
+   * rush past before it settled. Going back was the same in reverse.
+   *
+   * Smooth scrolling is opt-in per action instead: the back-to-top button asks
+   * for it in `window.scrollTo({ behavior })` and checks prefers-reduced-motion
+   * itself. A jump to a unit, like a jump on any other page, is instant.
+   */
 
   /*
    * The theme is a saved choice, not the OS preference, so the two can disagree.

@@ -102,18 +102,27 @@ export function Home() {
           عُد إلى ما تحتاجه متى شئت.
         </p>
 
-        {/* Eleven units make a long page, so let readers jump straight to one. */}
+        {/* Eleven units make a long page, so let readers jump straight to one.
+            These must be `Link`s, not plain `<a href="#…">`. A bare fragment
+            link is a navigation the browser performs itself, and the history
+            entry it creates carries none of the router's state — so the router
+            reads it as a return to the entry the page was opened on and
+            restores that entry's saved scroll position, cancelling the jump.
+            The chips did nothing at all on a fresh page, and after a trip to a
+            lesson and back they threw the reader wherever they had been
+            standing before. A `Link` pushes a location the router owns, and its
+            scroll restoration then honours the hash. */}
         <nav aria-label="الانتقال إلى وحدة" className="mt-5">
           <ul role="list" className="flex flex-wrap gap-2">
             {UNITS.map((unit, unitIndex) => (
               <li key={unit.id}>
-                <a
-                  href={`#unit-${unit.id}`}
+                <Link
+                  to={`#unit-${unit.id}`}
                   className="inline-flex items-center gap-1.5 rounded-full border border-ink-500 bg-white px-3 py-2 text-sm font-semibold text-ink-700 transition hover:border-green-400 hover:text-green-800 dark:border-ink-500 dark:bg-ink-900 dark:text-ink-300 dark:hover:border-green-700 dark:hover:text-green-300"
                 >
                   <span className="text-ink-600 dark:text-ink-400">{toArabicDigits(unitIndex + 1)}</span>
                   {unit.title}
-                </a>
+                </Link>
               </li>
             ))}
           </ul>
@@ -124,8 +133,12 @@ export function Home() {
             const unitLessons = lessonsOfUnit(unit.id)
             if (unitLessons.length === 0) return null
 
+            // No `scroll-mt` on the <li>: `html` already sets
+            // `scroll-padding-top` to clear the sticky header, and the two add
+            // up — the unit landed 184px down, a hand's width of nothing above
+            // it.
             return (
-              <li key={unit.id} id={`unit-${unit.id}`} className="scroll-mt-24">
+              <li key={unit.id} id={`unit-${unit.id}`}>
                 <div className="flex items-start gap-3">
                   <span className="text-2xl" aria-hidden="true">
                     {unit.emoji}

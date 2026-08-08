@@ -169,6 +169,17 @@ Decisions worth keeping:
   cost 60 KB gzipped on first load — 40% of the entry chunk — to render a list
   of titles. If you need a lesson's title or unit, use `lessons` from
   `lib/lessons.ts`.
+- **Scrolling on a route change is instant, and that is load-bearing.** Do not put
+  `scroll-behavior: smooth` back on `<html>`: it applies to the router's own
+  `window.scrollTo`, so opening a lesson from halfway down the curriculum used to
+  slide the new page past the reader for the best part of a second. Smooth is opt-in
+  per action, in JS, where it can also check `prefers-reduced-motion` — the back-to-top
+  button is the only place that asks. Two related traps, both already sprung once: an
+  in-page jump must be a `Link`, never a bare `<a href="#…">`, or the router mistakes
+  the browser's own fragment navigation for a return to the entry the page was opened
+  on; and `<ScrollRestoration>` needs a `getKey` carrying the path, because saved
+  positions outlive the document while every document's first entry is keyed
+  `"default"`.
 - **A stale build must not become a broken link.** Every route past the home page is
   loaded on demand and GitHub Pages keeps only the newest deploy, so a tab left open
   across a deploy asks for a chunk that no longer exists and the import throws. The

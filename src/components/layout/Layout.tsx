@@ -33,7 +33,7 @@ export function Layout() {
         href="#main"
         /* `fixed`, not `absolute`: absolute pins it to the top of the document,
            so Tabbing into the page after scrolling drags the viewport back up
-           (smoothly, given scroll-behavior: smooth). Fixed keeps it in view. */
+           to reveal it. Fixed keeps it where the reader already is. */
         className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:start-3 focus:z-50 focus:rounded-full focus:bg-green-600 focus:px-4 focus:py-2 focus:text-white"
       >
         تخطَّ إلى المحتوى
@@ -52,7 +52,23 @@ export function Layout() {
       </main>
       <Footer />
       <BackToTop />
-      <ScrollRestoration />
+      {/*
+       * The key has to carry the path, not just the history key.
+       *
+       * Saved positions live in sessionStorage, so they outlive the document,
+       * and the first history entry of *every* document is keyed "default". A
+       * reader who scrolled the curriculum and opened a lesson left 2600px
+       * saved under "default"; the next full page load — a shared deep link, a
+       * refresh, or the reload our stale-build boundary performs — read the
+       * same key and dropped them into the middle of a page they had never
+       * scrolled. Every cold load did it, on every route.
+       *
+       * Adding the path keeps the collision to one honest case: loading the
+       * same page again, which is what a refresh is, and where keeping the
+       * reader's place is the point. Keys are alphanumeric, so the colon can
+       * only ever be the one we put there.
+       */}
+      <ScrollRestoration getKey={(location) => `${location.key}:${location.pathname}`} />
     </div>
   )
 }
