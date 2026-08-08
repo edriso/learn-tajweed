@@ -214,8 +214,10 @@ questions:
 
 Rules for questions:
 
-- Put the **correct answer first** and use `answer: 0`. It keeps review easy. The
-  options are not shuffled, so vary the position only if you have a reason.
+- Put the **correct answer first** and use `answer: 0`. It keeps the file easy to
+  review. The options are **shuffled at render time**, seeded from the question's id,
+  so readers never learn that the first option is always right. The shuffle is stable:
+  the same question always shows the same order.
 - `why` is required. It is shown after answering, right or wrong.
 - Four options is the house style. Distractors should be plausible, not silly.
 - Every question automatically joins the mixed bank on `/practice`. Write them so they

@@ -147,7 +147,7 @@ items:
     note: ت
   - ref: 78:14
     word: ماء ثجاجا
-    highlight: ثجاجا
+    highlight: ماء
     note: ث
   - ref: 78:34
     word: وكأسا دهاقا

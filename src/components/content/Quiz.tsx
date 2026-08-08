@@ -97,7 +97,9 @@ function Question({
           className="mt-3 rounded-xl bg-ink-100/70 px-4 py-3 text-sm text-ink-700 dark:bg-ink-800/50 dark:text-ink-300"
         >
           <span className="font-bold">
-            {picked === question.answer ? 'إجابةٌ صحيحة. ' : 'الإجابة الصحيحة هي الأخضر. '}
+            {picked === question.answer
+              ? 'إجابةٌ صحيحة. '
+              : `الصواب «${question.options[question.answer]}». `}
           </span>
           {question.why}
         </p>
