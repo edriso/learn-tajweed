@@ -31,7 +31,16 @@ export function BackToTop() {
     // This button hides itself once the page is back at the top, so hand focus
     // to the content first. Otherwise focus is stranded inside an aria-hidden
     // element and the next Tab restarts from the beginning of the document.
-    document.getElementById('main')?.focus()
+    //
+    // `preventScroll` is what makes the button work at all. Without it, focus()
+    // also scrolls the element into view, and that scroll is instant, so it
+    // cancels the smooth one that started a line earlier. <main> is nearly as
+    // tall as the document, so its own scroll-into-view target is a fixed point
+    // most of the way down the page: from the footer, one click moved the
+    // viewport there and stopped, and only a second click — which found the
+    // page already at that target, so the cancelling scroll was a no-op — went
+    // to the top. Measured on the curriculum page: 5057 → 4705, then 4705 → 0.
+    document.getElementById('main')?.focus({ preventScroll: true })
   }
 
   return (
