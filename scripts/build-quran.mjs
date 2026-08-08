@@ -532,8 +532,111 @@ for (const ref of [...wanted.keys()].sort()) {
  * Hamzat al-wasl, the superscript alef and the pause/sajdah marks occur in the
  * mushaf and essentially nowhere else in ordinary Arabic writing. Text holding
  * one of them was copied from a mushaf, so it has to be checked against ours.
+ *
+ * This is now only used for the "verse pasted outside \u00AB\u2026\u00BB" sweep below. The
+ * quotation check no longer relies on it: a phrase can be pure Qur'an and
+ * contain none of these characters, and nine such quotations sat in the lessons
+ * with a mark missing precisely because this guard let them past.
  */
 const MUSHAF_ONLY = /[\u0670\u0671\u06D6-\u06ED]/
+
+/**
+ * Marks the reader may legitimately drop when quoting a fragment: the waqf
+ * signs (\u06D6 \u06D7 \u06D8 \u06D9 \u06DA \u06DB), the end-of-ayah circle and the sajdah sign. They are the
+ * mushaf's editorial furniture, not part of any word, and a two-word quotation
+ * lifted from the middle of a verse should not have to carry one.
+ *
+ * Everything else \u2014 the madda, hamzat al-wasl, the small seen, the silent-letter
+ * circles, every haraka \u2014 IS part of the word and must match.
+ */
+const OPTIONAL_MARKS = /[\u06D6-\u06DB\u06DD\u06DE\u06E9]/g
+
+/**
+ * Quotations that deliberately depart from the mushaf, each with its reason.
+ *
+ * A lesson sometimes has to print what a mistaken reciter says, which is by
+ * definition not what the mushaf has. Listing them here rather than exempting a
+ * whole file keeps every one of them a visible, reviewed decision \u2014 and means a
+ * tenth mistyped verse cannot hide among them.
+ */
+const DELIBERATE = new Map([
+  ['\u0623\u064E\u0646\u0652\u0639\u064E\u0645\u0652\u062A\u064F \u0639\u064E\u0644\u064E\u064A\u0652\u0647\u0650\u0645\u0652', '\u0633\u0624\u0627\u0644\u064C \u0639\u0646 \u0642\u0627\u0631\u0626\u064D \u0636\u0645\u0651 \u0627\u0644\u062A\u0627\u0621\u061B \u0627\u0644\u062E\u0637\u0623 \u0646\u0641\u0633\u0647 \u0647\u0648 \u0627\u0644\u0645\u0642\u0635\u0648\u062F'],
+  ['\u0645\u0650\u0646\u0652 \u0631\u064E\u0651\u0628\u0650\u0651\u0647\u0650\u0645\u0652', '\u0628\u0644\u0648\u0643 mistake: \u0646\u0637\u0642\u064F \u0645\u0646 \u064A\u064F\u0628\u0642\u064A \u0623\u062B\u0631 \u0627\u0644\u0646\u0648\u0646 \u0642\u0628\u0644 \u0627\u0644\u0645\u0634\u062F\u064E\u0651\u062F'],
+  ['\u0645\u0650\u0646 \u0631\u064E\u0651\u0628\u0650\u0651\u0647\u0650\u0645\u0652', '\u0633\u0624\u0627\u0644\u064C \u0639\u0646 \u0642\u0627\u0631\u0626\u064D \u0623\u0638\u0647\u0631 \u0627\u0644\u0646\u0648\u0646 \u0648\u0644\u0645 \u064A\u064F\u062F\u063A\u0645\u0647\u0627'],
+  ['\u0645\u0650\u0646\u0652 \u0642\u064E\u0628\u0652\u0644\u064F', '\u0631\u0633\u0645\u064F \u0627\u0644\u0646\u0637\u0642 \u0639\u0646\u062F \u0627\u0644\u0625\u062E\u0641\u0627\u0621\u060C \u0644\u0627 \u0631\u0633\u0645 \u0627\u0644\u0645\u0635\u062D\u0641'],
+  ['\u0645\u0650\u0646\u0652 \u0628\u064E\u0639\u0652\u062F\u0650', '\u0631\u0633\u0645\u064F \u0627\u0644\u0646\u0637\u0642 \u0639\u0646\u062F \u0627\u0644\u0625\u062E\u0641\u0627\u0621\u060C \u0644\u0627 \u0631\u0633\u0645 \u0627\u0644\u0645\u0635\u062D\u0641'],
+  ['\u0644\u0627 \u0631\u064A\u0628 \u0641\u064A\u0647', '\u0645\u0630\u0643\u0648\u0631\u0629\u064C \u0628\u0644\u0627 \u062A\u0634\u0643\u064A\u0644 \u0644\u0628\u064A\u0627\u0646 \u0645\u0648\u0636\u0639 \u0627\u0644\u0648\u0642\u0641 \u0648\u062D\u062F\u0647'],
+  ['\u0641\u064A\u0647 \u0647\u062F\u064B\u0649 \u0644\u0644\u0645\u062A\u0651\u0642\u064A\u0646', '\u0645\u0630\u0643\u0648\u0631\u0629\u064C \u0628\u0644\u0627 \u062A\u0634\u0643\u064A\u0644 \u0644\u0628\u064A\u0627\u0646 \u0645\u0648\u0636\u0639 \u0627\u0644\u0648\u0642\u0641 \u0648\u062D\u062F\u0647'],
+  ['\u0647\u062F\u064B\u0649 \u0644\u0644\u0645\u062A\u0651\u0642\u064A\u0646', '\u0645\u0630\u0643\u0648\u0631\u0629\u064C \u0628\u0644\u0627 \u062A\u0634\u0643\u064A\u0644 \u0644\u0628\u064A\u0627\u0646 \u0645\u0648\u0636\u0639 \u0627\u0644\u0648\u0642\u0641 \u0648\u062D\u062F\u0647'],
+  ['\u0641\u0625\u0630\u0627 \u0642\u0631\u0623\u062A\u064E', '\u0625\u0634\u0627\u0631\u0629\u064C \u0625\u0644\u0649 \u0627\u0644\u0622\u064A\u0629 \u0641\u064A \u0633\u064A\u0627\u0642 \u0627\u0644\u0643\u0644\u0627\u0645\u060C \u0644\u0627 \u0627\u0642\u062A\u0628\u0627\u0633\u064C \u0644\u0631\u0633\u0645\u0647\u0627'],
+  ['\u0625\u0644\u0651\u0627 \u0627\u0644\u0644\u0647', '\u0625\u0634\u0627\u0631\u0629\u064C \u0625\u0644\u0649 \u0645\u0648\u0636\u0639 \u0627\u0644\u0648\u0642\u0641\u060C \u0644\u0627 \u0627\u0642\u062A\u0628\u0627\u0633\u064C \u0644\u0631\u0633\u0645\u0647\u0627'],
+])
+
+/** The verse text as one string per verse, for exact lookups. */
+const verseTexts = [...verses.entries()]
+
+/**
+ * Does this quotation look Qur'anic, and if so does it match the mushaf?
+ *
+ * Returns nothing when the phrase is not Qur'anic at all, or when it matches.
+ * The comparison is on NFC-normalised text: the corpus stores a shadda before
+ * its haraka and most editors write them the other way round, which is the same
+ * string under Unicode and must not be reported as a difference.
+ */
+function quotationProblem(inner) {
+  const phrase = inner.trim()
+  if (DELIBERATE.has(phrase)) return undefined
+  if (phrase.split(/\s+/).length < 2) return undefined
+
+  const wanted = skeleton(phrase, 'keep').text
+  if (baseLetters(wanted).length < 6) return undefined
+
+  const tidy = (s) => s.normalize('NFC').replace(OPTIONAL_MARKS, '').replace(/\s+/g, ' ').trim()
+
+  // A phrase can occur in several verses that spell it differently — «هُمْ فِيهَا
+  // خَالِدُونَ» is 2:39 and «هُمْ فِيهَآ خَـٰلِدُونَ» is 2:25. Matching ANY of them is
+  // enough; only report when the writing matches none.
+  const candidates = []
+  for (const [ref, verse] of verseTexts) {
+    const hay = skeleton(verse, 'keep').text
+    const at = hay.indexOf(wanted)
+    if (at === -1 || !onWordBoundary(hay, at, wanted.length)) continue
+    const segment = mushafSegment(verse, wanted)
+    if (tidy(segment) === tidy(phrase)) return undefined
+    candidates.push({ ref, mushaf: segment })
+  }
+  if (candidates.length === 0) return undefined
+
+  const best = candidates[0]
+  return {
+    ref: candidates.length > 1 ? `${best.ref} وغيرها` : best.ref,
+    mushaf: best.mushaf,
+    detail: firstDifference(tidy(phrase), tidy(best.mushaf)),
+  }
+}
+
+/** The stretch of the verse whose letters are `wanted`, marks and all. */
+function mushafSegment(verse, wanted) {
+  const { text, positions } = skeleton(verse, 'keep')
+  const at = text.indexOf(wanted)
+  if (at === -1) return verse
+  const from = positions[at]
+  let to = (positions[at + wanted.length - 1] ?? verse.length - 1) + 1
+  while (to < verse.length && !/[\u0621-\u064A\u0671\s]/.test(verse[to])) to++
+  return verse.slice(from, to).trim()
+}
+
+/** Where two strings first diverge, named by codepoint so it is actionable. */
+function firstDifference(mine, theirs) {
+  const a = [...mine]
+  const b = [...theirs]
+  for (let i = 0; i < Math.max(a.length, b.length); i++) {
+    if (a[i] === b[i]) continue
+    const name = (ch) => (ch ? `U+${ch.codePointAt(0).toString(16).toUpperCase().padStart(4, '0')}` : '\u0644\u0627 \u0634\u064A\u0621')
+    return `\u0623\u0648\u0651\u0644 \u0641\u0631\u0642 \u0639\u0646\u062F \u0627\u0644\u062D\u0631\u0641 ${i + 1}: \u0627\u0644\u0645\u0643\u062A\u0648\u0628 ${name(a[i])}\u060C \u0648\u0627\u0644\u0645\u0635\u062D\u0641 ${name(b[i])}`
+  }
+  return '\u0627\u0644\u0637\u0648\u0644 \u0645\u062E\u062A\u0644\u0641'
+}
 
 /**
  * A run of two or more Arabic words. A quotation from the mushaf is always at
@@ -570,18 +673,31 @@ for (const path of sourceFiles) {
   const raw = await readFile(path, 'utf8')
   const where = relative(ROOT, path)
 
-  // Text inside a ref block is a reference, not a quotation: already checked.
-  const prose = raw.replace(/```(ayah|examples|quiz)\r?\n[\s\S]*?```/g, '')
+  // The verse text of a ref block is resolved from the corpus and already
+  // exact. Its prose fields — note, q, why, wrong, right — are hand-written and
+  // reach the reader, so they are checked like any other prose.
+  const prose = raw.replace(
+    /```(ayah|examples|quiz)\r?\n([\s\S]*?)```/g,
+    (_whole, _lang, body) =>
+      body
+        .split('\n')
+        .filter((line) => /^\s*(-\s*)?(note|q|why|wrong|right|title|mnemonic):/.test(line))
+        .join('\n'),
+  )
 
   const quoted = []
   for (const [whole, inner] of prose.matchAll(QUOTED)) {
     quoted.push(whole)
-    if (!MUSHAF_ONLY.test(inner)) continue // an ordinary quotation, not a verse
-    if (!isInMushaf(inner)) {
+    const problem = quotationProblem(inner)
+    if (problem) {
       fail(
-        `${where}: هذا النصّ يبدو قرآنيًّا لكنّه لا يطابق المصحف حرفًا بحرف:\n` +
-          `      ${inner.trim()}\n` +
-          `      الأفضل استعمال بلوك \`ayah\` بحقل \`ref\` بدلًا من كتابة الآية باليد.`,
+        `${where}: هذه العبارة قرآنيّة لكنّها لا تطابق المصحف:\n` +
+          `      المكتوب: ${inner.trim()}\n` +
+          `      المصحف : ${problem.mushaf}   (${problem.ref})\n` +
+          `      ${problem.detail}\n` +
+          `      استعمل بلوك \`ayah\` بحقل \`ref\`، أو انسخ اللفظ من المصحف كما هو.\n` +
+          `      وإن كان الاختلاف مقصودًا (نطقُ قارئٍ مخطئ مثلًا) فأضِفه إلى\n` +
+          `      DELIBERATE في هذا الملفّ مع سبب واضح.`,
       )
     }
   }

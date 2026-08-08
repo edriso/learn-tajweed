@@ -41,6 +41,19 @@ Reference it (`ref: 2:19`) and the build inserts the exact text from the pinned 
 corpus. If a verse must appear in running prose, wrap it in `«…»` and the build will
 check it character by character. See [docs/quran-pipeline.md](./docs/quran-pipeline.md).
 
+That check is exact, not approximate. Any `«…»` of two or more words whose
+letters match a phrase in the mushaf must then match the mushaf's own writing —
+every haraka, the madda, hamzat al-wasl, the small seen, the silent-letter
+circles. It compares NFC-normalised text, so writing a shadda before or after
+its haraka is not a difference; and a fragment may drop the waqf and sajdah
+marks, which are the mushaf's editorial furniture rather than part of a word.
+
+If a lesson needs to print something that deliberately is **not** the mushaf —
+a quiz quoting a reciter's mistake, a `mistake` block rendering how a wrong
+reading sounds — add it to `DELIBERATE` in `scripts/build-quran.mjs` with the
+reason. Do not weaken the check, and do not exempt a whole file: every
+departure from the mushaf on this site should be one somebody chose on purpose.
+
 ### 2. Never present a contested point as settled
 
 Tajweed has genuine scholarly disagreement. Where it exists, the lesson says so, names
