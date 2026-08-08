@@ -72,6 +72,7 @@ items:
     word: عليم حكيم
     highlight: عليم
     note: تنوين ضمّ، فلا مدّ عوض
+    rule: none
 ```
 
 ```note

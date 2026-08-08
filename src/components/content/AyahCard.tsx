@@ -6,6 +6,13 @@ import { getAyah, getSpan, quranComUrl } from '@/lib/quran'
 import { getRule, RULE_TEXT_CLASS } from '@/lib/rules'
 import { cn, toArabicDigits } from '@/lib/utils'
 
+/**
+ * `rule: none` — mark this stretch without asserting a tajweed ruling on it.
+ * Two cards used a real rule id purely as a tint, which printed a rule badge
+ * over words the rule does not touch at all.
+ */
+const NO_RULE = 'none'
+
 /** One coloured stretch of the verse: the letters a rule applies to. */
 export interface AyahMark {
   /** The words to colour, written without tashkeel in the lesson file. */
@@ -82,7 +89,7 @@ export function AyahCard({ spec }: { spec: AyahSpec }) {
   const isPartial = from > 0 || to < ayah.text.length
 
   const segments = toSegments(ayah.text, spec.ref, marks, from, to)
-  const usedRules = [...new Set(marks.map((mark) => mark.rule))]
+  const usedRules = [...new Set(marks.map((mark) => mark.rule))].filter((id) => id !== NO_RULE)
 
   return (
     <figure
@@ -136,11 +143,23 @@ export function AyahCard({ spec }: { spec: AyahSpec }) {
           The colour and the rule's name already carry the emphasis.
         */}
         {segments.map((segment, index) => {
-          const rule = segment.rule ? getRule(segment.rule) : undefined
+          const rule = segment.rule && segment.rule !== NO_RULE ? getRule(segment.rule) : undefined
+          // `rule: none` points at a stretch of the verse without claiming a
+          // ruling over it — for a waqf position, or a word the surrounding
+          // rule does not actually apply to. A dotted underline, the same
+          // neutral emphasis the rule-colours-off setting falls back to.
+          const neutral = segment.rule === NO_RULE
           return (
             <Fragment key={index}>
-              {rule ? (
-                <mark className={cn(RULE_TEXT_CLASS[rule.color])}>{segment.text}</mark>
+              {rule || neutral ? (
+                <mark
+                  className={cn(
+                    rule && RULE_TEXT_CLASS[rule.color],
+                    neutral && 'underline decoration-dotted underline-offset-[0.78em]',
+                  )}
+                >
+                  {segment.text}
+                </mark>
               ) : (
                 segment.text
               )}
@@ -155,10 +174,10 @@ export function AyahCard({ spec }: { spec: AyahSpec }) {
         )}
       </p>
 
-      {segments.some((segment) => segment.rule) && (
+      {segments.some((segment) => segment.rule && segment.rule !== NO_RULE) && (
         <p className="sr-only">
           {segments
-            .filter((segment) => segment.rule)
+            .filter((segment) => segment.rule && segment.rule !== NO_RULE)
             .map((segment) => `${segment.text.trim()}: ${getRule(segment.rule!)?.name ?? ''}`)
             .join('، ')}
         </p>

@@ -80,6 +80,7 @@ items:
     word: وما هم بمؤمنين
     highlight: هم
     note: انتبِه، هذه ميمٌ ساكنة لا نون
+    rule: none
 ```
 
 ```warning

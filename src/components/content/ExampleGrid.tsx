@@ -11,6 +11,13 @@ export interface ExampleItem {
   highlight?: string
   /** A very short label, usually the letter that triggers the rule. */
   note?: string
+  /**
+   * Overrides the block's rule for this item alone. Use `none` for an item that
+   * is deliberately a counter-example: several blocks end with a word the rule
+   * does NOT apply to, and without this it was tinted in the colour of the very
+   * rule its own note says it is an exception to.
+   */
+  rule?: string
 }
 
 export interface ExampleGridSpec {
@@ -24,7 +31,8 @@ function Example({ item, fallbackRule }: { item: ExampleItem; fallbackRule?: str
   const wordSpan = getSpan(item.ref, item.word)
   if (!ayah || !wordSpan) return null
 
-  const rule = getRule(fallbackRule ?? '')
+  const ruleId = item.rule ?? fallbackRule
+  const rule = ruleId && ruleId !== 'none' ? getRule(ruleId) : undefined
   const text = ayah.text.slice(wordSpan[0], wordSpan[1])
 
   // Colour only part of the phrase when the lesson asks for it, otherwise all
