@@ -100,13 +100,30 @@ export function Home() {
           عُد إلى ما تحتاجه متى شئت.
         </p>
 
+        {/* Eleven units make a long page, so let readers jump straight to one. */}
+        <nav aria-label="الانتقال إلى وحدة" className="mt-5">
+          <ul className="flex flex-wrap gap-2">
+            {UNITS.map((unit, unitIndex) => (
+              <li key={unit.id}>
+                <a
+                  href={`#unit-${unit.id}`}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-ink-200 bg-white px-3 py-1.5 text-sm font-semibold text-ink-700 transition hover:border-green-400 hover:text-green-800 dark:border-ink-800 dark:bg-ink-900 dark:text-ink-300 dark:hover:border-green-700 dark:hover:text-green-300"
+                >
+                  <span className="text-ink-400">{toArabicDigits(unitIndex + 1)}</span>
+                  {unit.title}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
         <ol className="mt-8 space-y-12">
           {UNITS.map((unit, unitIndex) => {
             const unitLessons = lessonsOfUnit(unit.id)
             if (unitLessons.length === 0) return null
 
             return (
-              <li key={unit.id}>
+              <li key={unit.id} id={`unit-${unit.id}`} className="scroll-mt-24">
                 <div className="flex items-start gap-3">
                   <span className="text-2xl" aria-hidden="true">
                     {unit.emoji}
