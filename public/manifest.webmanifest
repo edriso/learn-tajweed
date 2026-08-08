@@ -1,0 +1,31 @@
+{
+  "name": "تعلَّم التجويد · دليلٌ عمليٌّ لأحكام تلاوة القرآن",
+  "short_name": "تعلَّم التجويد",
+  "description": "أحكام التجويد برواية حفص عن عاصم من طريق الشاطبيّة، مرتَّبةً من الأسهل إلى الأصعب، بأمثلةٍ مسموعةٍ من القرآن الكريم وتمارينَ بعد كلّ درس.",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "/learn-tajweed/",
+  "scope": "/learn-tajweed/",
+  "display": "standalone",
+  "background_color": "#fbfaf7",
+  "theme_color": "#fbfaf7",
+  "categories": ["education", "books"],
+  "icons": [
+    {
+      "src": "/learn-tajweed/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/learn-tajweed/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/learn-tajweed/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

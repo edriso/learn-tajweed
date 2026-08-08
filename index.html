@@ -2,7 +2,17 @@
 <html lang="ar" dir="rtl">
   <head>
     <meta charset="UTF-8" />
+    <!--
+      SVG first for browsers that take it; a PNG beside it because Google's
+      favicon documentation does not list SVG among the formats it states
+      support for, and the icon next to an Arabic search result matters.
+      apple-touch-icon stops iOS screenshotting the page on "add to home
+      screen". All are generated from favicon.svg by `npm run og`.
+    -->
     <link rel="icon" type="image/svg+xml" href="/learn-tajweed/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/learn-tajweed/icon-192.png" />
+    <link rel="apple-touch-icon" href="/learn-tajweed/apple-touch-icon.png" />
+    <link rel="manifest" href="/learn-tajweed/manifest.webmanifest" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="light dark" />
     <!--
@@ -19,6 +29,21 @@
     />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="ar_AR" />
+    <meta property="og:site_name" content="تعلَّم التجويد" />
+    <!--
+      Absolute, because a link-preview crawler has no base to resolve against.
+      Regenerate with `npm run og`; the verse on the card is sliced out of the
+      pinned mushaf, never typed. Every pre-rendered route inherits this image.
+    -->
+    <meta property="og:image" content="https://edriso.github.io/learn-tajweed/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:type" content="image/png" />
+    <meta
+      property="og:image:alt"
+      content="تعلَّم التجويد · دليلٌ لأحكام تلاوة القرآن على رواية حفص عن عاصم من طريق الشاطبيّة"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta property="og:title" content="تعلَّم التجويد · دليلٌ عمليٌّ لأحكام تلاوة القرآن" />
     <meta
       property="og:description"

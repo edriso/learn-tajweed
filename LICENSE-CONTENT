@@ -1,0 +1,46 @@
+Creative Commons Attribution 4.0 International (CC BY 4.0)
+
+Copyright (c) 2026 Mohamed Idris
+
+The written content of this guide — the lessons under src/content/lessons/,
+the pages under src/content/pages/, and the rule, glossary and unit text in
+src/lib/rules.ts, src/lib/glossary.ts and src/lib/units.ts — is licensed under
+the Creative Commons Attribution 4.0 International License.
+
+You are free to:
+
+  Share  — copy and redistribute the material in any medium or format
+  Adapt  — remix, transform, and build upon the material
+           for any purpose, even commercially.
+
+Under the following term:
+
+  Attribution — You must give appropriate credit, provide a link to the
+  licence, and indicate if changes were made. You may do so in any reasonable
+  manner, but not in any way that suggests the licensor endorses you or your
+  use.
+
+Full licence text: https://creativecommons.org/licenses/by/4.0/legalcode
+Summary:           https://creativecommons.org/licenses/by/4.0/
+
+Suggested attribution:
+
+  «تعلَّم التجويد» — https://edriso.github.io/learn-tajweed/ — CC BY 4.0
+
+---
+
+Two things this licence does NOT cover:
+
+  1. The Qur'anic text itself, in data/ and src/content/quran.generated.json.
+     That is © the Tanzil Project under CC BY 3.0, reproduced verbatim and
+     never modified. Those terms are not ours to relicense and they follow the
+     text wherever it goes. See https://tanzil.net/docs/tanzil_license
+
+  2. The software in this repository — the application, the build scripts and
+     the styling — which is under the MIT licence. See LICENSE.
+
+A note to anyone republishing: this guide teaches رواية حفص عن عاصم من طريق
+الشاطبيّة. Rules genuinely differ between riwayat, and several points in the
+text are disputed among scholars and are presented as disputed on purpose. If
+you adapt it, please keep that nuance rather than flattening it — an
+oversimplified ruling about the recitation of the Qur'an does real harm.

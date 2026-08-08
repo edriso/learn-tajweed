@@ -121,5 +121,17 @@ the text, builds the site, and publishes it to GitHub Pages at
 
 ## Licence
 
-- Code and lesson text: open source, see this repository.
-- Qur'anic text: © Tanzil Project, CC BY 3.0. Used verbatim and never modified.
+| What | Licence |
+| --- | --- |
+| The application, build scripts and styling | [MIT](./LICENSE) |
+| The lessons and the other written content | [CC BY 4.0](./LICENSE-CONTENT) |
+| The Qur'anic text in `data/` | © [Tanzil Project](https://tanzil.net/docs/tanzil_license), CC BY 3.0 |
+
+So you may fork the site, print the lessons for a halaqah, translate them, or
+re-host them — commercially or not — as long as you credit this guide. The
+Tanzil terms on the Qur'anic text are not ours to relicense; they travel with
+the text, which is reproduced verbatim and never modified.
+
+If you republish the lessons, please keep the places where the text names a
+scholarly disagreement or the riwayah it applies to. Flattening those is how a
+guide to reciting the Qur'an starts doing harm.

@@ -11,7 +11,8 @@
     "quran:build": "node scripts/build-quran.mjs",
     "quran:fetch": "node scripts/fetch-quran.mjs",
     "check": "npm run quran:build && npm run lint && tsc -b",
-    "quran:find": "node scripts/find-ayah.mjs"
+    "quran:find": "node scripts/find-ayah.mjs",
+    "og": "node scripts/build-og-image.mjs"
   },
   "dependencies": {
     "@fontsource-variable/cairo": "^5.3.0",
