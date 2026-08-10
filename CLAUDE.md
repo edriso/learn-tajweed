@@ -112,7 +112,48 @@ No images of people, no music, no channels that mix teaching with entertainment.
 come from the shaykh's own channel, not from TV re-uploads. Verify a video id before
 embedding it.
 
-### 7. Anything third-party gets an entry in NOTICE
+### 7. No reward mechanics. This was considered and rejected on the evidence
+
+**Do not add points, scores, streaks, badges, levels, leaderboards, daily goals, or a
+celebration for finishing a single lesson.** This is not an oversight waiting to be
+fixed, and it is not conservatism about animation — the site does have a celebration,
+once. It is a decision with reasons, recorded here so it does not get relitigated every
+time someone notices that ticking a lesson is quiet.
+
+The proposal that keeps coming up is the mildest form: a small burst each time a lesson
+is marked done. Two findings say no.
+
+1. **Celebration fatigue is a documented failure, not a matter of taste.** Hedonic
+   adaptation is fast, so a burst that delights on the first task irritates by the
+   fiftieth; the working rule is that intensity scales with significance. Thirty-four
+   bursts would cost the thirty-fourth one the only thing it had.
+   — [Beyond the Toggle](https://timgraf.com/ux-design/beyond-the-toggle-how-to-design-micro-interactions-that-shape-user-behavior-build-trust-and-make-products-memorable/),
+   [Psychology of Microinteractions](https://www.supercharged.studio/blog/psychology-of-microinteractions-in-ux-design)
+
+2. **And this is Qur'anic learning, where the transfer has actually been measured.** The
+   study to read found that points and badges *did* raise engagement — and that the
+   engagement did not reach learning at all (R² = 0.021), that leaderboards were
+   actively negative, and that extrinsic rewards risk displacing the intrinsic
+   motive a reader arrived with. Its own conclusion was that secular gamification does
+   not transfer to sacred learning, and that spiritual growth should be preferred over
+   competitive mechanics.
+   — [Gamification in Qur'anic Learning: Evidence from Muslim Students in Hybrid
+   Classrooms](https://journals.ldpb.org/index.php/cognoscere/article/view/285)
+
+The second finding is the decisive one. A reward loop here would be precisely the thing
+that study warns against, pointed at the Book of Allah, in exchange for engagement it
+found does not become learning.
+
+What the site does instead is report rather than reward, in three tiers whose spacing is
+the whole design — see **Progress is acknowledged in three tiers** under Architecture for
+the mechanics. A progress bar answering «how much is left» is information a reader asked
+for by ticking a box. A streak they would lose by missing a day is a hook, and this guide
+has to be a thing someone can walk away from and come back to.
+
+If you are convinced this is wrong, the bar to clear is evidence about *this* subject,
+not a screenshot of another app. Raise it with the maintainer rather than shipping it.
+
+### 8. Anything third-party gets an entry in NOTICE
 
 Everything written for this repository — the app, the scripts, the lesson text — is
 [0BSD](./LICENSE): no attribution, no conditions, deliberately. Do not add a licence
@@ -232,18 +273,12 @@ Decisions worth keeping:
   | A unit finished | 11× | One line naming the unit, gold-bordered, fading in. `khatm-note`. |
   | The guide finished | 1× | `CompletionCard` with the burst. |
 
-  The reason tier one is deliberately flat is not taste. Confetti on every task
-  is a known failure: hedonic adaptation is fast, the fiftieth burst irritates,
-  and the accepted rule is that intensity scales with significance — so a burst
-  thirty-four times over would cost the thirty-fourth one the only thing it had.
-  The sharper reason is the subject. The one study to measure gamifying Qur'anic
-  learning found points and badges *did* lift engagement, that the engagement did
-  not reach learning at all (R² = 0.021), that leaderboards were actively
-  negative, and that extrinsic rewards risk displacing the intrinsic motive a
-  reader arrived with. So tier one reports and does not reward: a bar answering
-  «how much is left» is information the reader asked for by ticking. Add a
-  streak, a score or a badge and this site is doing the thing that study warns
-  about, to the Qur'an.
+  Tier one is deliberately flat, and the reasons — celebration fatigue, and what
+  happened when someone measured gamified Qur'anic learning — are recorded in
+  full under **rule 7, No reward mechanics**, along with the two sources. Read
+  that before changing this. The short version: tier one reports and does not
+  reward, because a bar answering «how much is left» is information a reader
+  asked for by ticking a box, and a streak is a hook.
 
   Mechanically, all three tiers hang off one piece of state in `LessonPage`:
   `markedAt`, the slug the reader ticked *on this page*. The stored progress

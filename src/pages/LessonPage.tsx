@@ -51,8 +51,8 @@ export function LessonPage() {
    * Marking a lesson done gets no celebration: the button fills in, and the bar
    * at the foot of the page moves. That is information, and information is what
    * a reader who ticked a box asked for. A burst thirty-four times over would
-   * cost the thirty-fourth one its meaning — hedonic adaptation is quick, and
-   * the same reader who smiled at the first would be wincing by the tenth.
+   * cost the thirty-fourth one its meaning. This was argued out and settled on
+   * the evidence — see rule 7, «No reward mechanics», in CLAUDE.md.
    *
    * Finishing a whole unit gets a line naming it. Eleven times, no animation
    * beyond a fade, no score.
