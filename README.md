@@ -88,6 +88,7 @@ src/
   lib/glossary.ts         terms that are not rule names
   components/content/     the custom Markdown blocks
   components/layout/      header, footer, theme toggle, back-to-top
+  components/CompletionCard.tsx   what the reader sees on finishing the last lesson
   pages/                  Home, LessonPage, Practice, Cheatsheet, Glossary, About
 docs/                     how the pipeline works, how to write a lesson
 ```
@@ -124,15 +125,21 @@ the text, builds the site, and publishes it to GitHub Pages at
 
 | What | Licence |
 | --- | --- |
-| The application, build scripts and styling | [MIT](./LICENSE) |
-| The lessons and the other written content | [CC BY 4.0](./LICENSE-CONTENT) |
-| The Qur'anic text in `data/` | © [Tanzil Project](https://tanzil.net/docs/tanzil_license), CC BY 3.0 |
+| Everything written for this repository — the app, the build scripts, the styling, and the lessons | [0BSD](./LICENSE) |
+| The Qur'anic text in `data/` | © [Tanzil Project](https://tanzil.net/docs/tanzil_license), CC BY 3.0 — see [NOTICE](./NOTICE) |
+| Surah names, recitation audio, fonts | third-party — see [NOTICE](./NOTICE) |
 
-So you may fork the site, print the lessons for a halaqah, translate them, or
-re-host them — commercially or not — as long as you credit this guide. The
-Tanzil terms on the Qur'anic text are not ours to relicense; they travel with
-the text, which is reproduced verbatim and never modified.
+[0BSD](https://opensource.org/license/0bsd) is a public-domain-equivalent
+licence: fork the site, print the lessons for a halaqah, translate them, put
+them in a book, re-host them, sell them. You owe no credit and no notice. It is
+sadaqah, and being asked for a footer would defeat the point.
 
-If you republish the lessons, please keep the places where the text names a
-scholarly disagreement or the riwayah it applies to. Flattening those is how a
-guide to reciting the Qur'an starts doing harm.
+What you cannot relicense is the material this repository only redistributes.
+The Tanzil terms on the Qur'anic text require Tanzil to be named and forbid
+modifying the text; they travel with it into your fork, so keep the attribution
+that is already on the «عن هذا الدليل» page. [NOTICE](./NOTICE) lists all of it.
+
+One request, and it is a request rather than a condition of the licence: if you
+republish the lessons, keep the places where the text names a scholarly
+disagreement or the riwayah a rule belongs to. Flattening those is how a guide
+to reciting the Qur'an starts doing harm.

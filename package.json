@@ -2,6 +2,7 @@
   "name": "learn-tajweed",
   "private": true,
   "version": "0.0.0",
+  "license": "0BSD",
   "type": "module",
   "scripts": {
     "dev": "npm run content:build && vite",

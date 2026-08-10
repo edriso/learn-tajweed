@@ -112,6 +112,19 @@ No images of people, no music, no channels that mix teaching with entertainment.
 come from the shaykh's own channel, not from TV re-uploads. Verify a video id before
 embedding it.
 
+### 7. Anything third-party gets an entry in NOTICE
+
+Everything written for this repository — the app, the scripts, the lesson text — is
+[0BSD](./LICENSE): no attribution, no conditions, deliberately. Do not add a licence
+header to a file, and do not add a credit-us line anywhere.
+
+Material this repository only redistributes is the opposite case, because its terms are
+not ours to give away. The Qur'anic text is CC BY 3.0 from Tanzil and requires that
+Tanzil be named; the fonts are OFL. If you bring in a new corpus, dataset, font or audio
+source, add it to [NOTICE](./NOTICE) in the same pass — that file is the only record of
+what a forker still owes, so an omission there is what turns a fork into a licence
+breach.
+
 ## Architecture
 
 The site is content-driven. Lessons are Markdown; React is the shell that renders them.

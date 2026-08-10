@@ -1,0 +1,60 @@
+Third-party material redistributed by this repository
+=====================================================
+
+The repository itself is 0BSD (see LICENSE): no attribution, no conditions.
+The items below are NOT ours to relicense. Their own terms are listed here and
+they travel with the material wherever it goes — including into a fork of this
+site.
+
+1. The Qur'anic text
+--------------------
+
+  Files:   data/quran-uthmani.txt
+           src/content/quran.generated.json  (generated from the above)
+  Source:  the Tanzil Project — https://tanzil.net/
+  Text:    Uthmani script, رواية حفص عن عاصم, following the Madinah Mushaf
+  Terms:   Creative Commons Attribution 3.0
+           https://tanzil.net/docs/tanzil_license
+
+  The Tanzil terms permit copying and distribution, require that Tanzil be
+  named as the source with a link to tanzil.net, and forbid modifying the text.
+
+  This repository stores the file byte for byte and never edits it. That is
+  enforced mechanically, not by good intentions: the corpus is pinned by a
+  SHA-256 checksum that `npm run build` verifies before it will produce a site,
+  and every Uthmani fragment written anywhere else in the repository is
+  compared against the corpus character by character. See
+  docs/quran-pipeline.md.
+
+  If you fork this site, you must keep naming Tanzil. The attribution is
+  already on the «عن هذا الدليل» page and in the `source` field of
+  src/content/quran.generated.json — leave both in place.
+
+2. Surah names
+--------------
+
+  File:    data/surah-names.json
+  Source:  the quran.com API — https://quran.com/
+
+3. Recitation audio
+-------------------
+
+  Source:  everyayah.com — https://everyayah.com/
+  Reciters: Shaykh Mahmoud Khalil al-Husary (murattal, and the teaching
+            recitation), and Shaykh Muhammad Siddiq al-Minshawi
+
+  No audio file is stored in this repository or served from this site. The
+  reader's browser requests the file from everyayah.com directly when they
+  press the listen button.
+
+4. Fonts
+--------
+
+  Cairo         — SIL Open Font License 1.1, via @fontsource-variable/cairo
+  Amiri Quran   — SIL Open Font License 1.1, via @fontsource/amiri-quran
+
+  https://openfontlicense.org/
+
+  These are npm dependencies rather than committed files, but the built site
+  bundles and serves them, so a deployment of this site distributes them under
+  the OFL.

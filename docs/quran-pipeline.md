@@ -163,3 +163,7 @@ The text is © [Tanzil Project](https://tanzil.net/), CC BY 3.0, Uthmani script 
 the Madinah Mushaf. The terms permit distribution and require attribution, and forbid
 modification. This repository uses the file byte for byte and never edits it, which is
 also exactly what the checksum enforces.
+
+The rest of the repository is 0BSD and asks for nothing, but these terms are not ours to
+give away: they travel with the text into any fork. [NOTICE](../NOTICE) at the repository
+root records them, alongside the other material this repository only redistributes.

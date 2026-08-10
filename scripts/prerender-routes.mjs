@@ -292,6 +292,11 @@ const homeLd = jsonLd({
       inLanguage: 'ar',
       description:
         'دليلٌ مجّانيٌّ لتعلُّم أحكام تجويد القرآن الكريم على رواية حفص عن عاصم من طريق الشاطبيّة.',
+      // The guide itself, code and lessons alike, is 0BSD — see LICENSE. This
+      // says nothing about the Qur'anic text it quotes, which stays under the
+      // Tanzil terms recorded in NOTICE and is not ours to relicense.
+      license: 'https://opensource.org/license/0bsd',
+      isAccessibleForFree: true,
     },
     {
       '@type': 'EducationalOrganization',

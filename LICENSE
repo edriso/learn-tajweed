@@ -1,36 +1,35 @@
-MIT License
+BSD Zero Clause License
 
 Copyright (c) 2026 Mohamed Idris
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+PERFORMANCE OF THIS SOFTWARE.
 
 ---
 
-This licence covers the SOFTWARE in this repository only: the React
-application, the build and verification scripts, and the styling.
+Scope of the above.
 
-It does NOT cover:
+"This software" means everything in this repository that was written for it:
+the React application, the build and verification scripts, the styling, and
+the written content — the lessons under src/content/, the pages, and the rule,
+glossary and unit text in src/lib/. No attribution is required for any of it.
+Take it, print it, translate it, re-host it, sell it. It is sadaqah.
 
-  * The lesson text and the other written content under src/content/, which is
-    licensed separately under CC BY 4.0. See LICENSE-CONTENT.
+It does NOT cover the third-party material this repository redistributes,
+whose own terms are not ours to relicense: the Qur'anic text in data/ and
+src/content/quran.generated.json, the surah names, and the fonts. Those are
+listed in NOTICE, and their terms travel with them wherever they go.
 
-  * The Qur'anic text in data/ and src/content/quran.generated.json, which is
-    © the Tanzil Project and used under CC BY 3.0, verbatim and unmodified.
-    See https://tanzil.net/docs/tanzil_license — the Tanzil terms are not
-    ours to relicense, and they travel with the text wherever it goes.
+One request, which is a request and not a condition: this guide teaches
+رواية حفص عن عاصم من طريق الشاطبيّة, and several points in it are disputed
+among the scholars of the field and are written as disputed on purpose. If you
+adapt it, please keep that nuance rather than flattening it. An oversimplified
+ruling about the recitation of the Qur'an does real harm.
