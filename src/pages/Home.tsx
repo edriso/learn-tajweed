@@ -1,5 +1,6 @@
 import { ArrowLeft, BookOpen, Headphones, ListChecks } from 'lucide-react'
 import { Link } from 'react-router'
+import { CompletionCard } from '@/components/CompletionCard'
 import { LessonCard } from '@/components/home/LessonCard'
 import { ProgressBar } from '@/components/home/ProgressBar'
 import { usePageTitle } from '@/hooks/usePageTitle'
@@ -29,8 +30,22 @@ const HOW_TO_USE = [
 
 export function Home() {
   usePageTitle()
-  const { isDone, completed, total, percent, nextLesson } = useProgress()
+  const { isDone, completed, total, percent, finished, nextLesson } = useProgress()
   const started = completed > 0
+
+  /*
+   * Three states, not two. A reader who has finished everything has no «where
+   * they stopped» to be taken back to, and `nextLesson` is undefined — so the
+   * button used to keep promising «تابِع من حيث توقّفت» and then quietly drop
+   * them at lesson one. Restarting is a fine thing for it to offer; saying so is
+   * the part that was missing.
+   */
+  const first = lessons[0]?.slug ?? ''
+  const cta = finished
+    ? { to: `/lessons/${first}`, label: 'أعِد القراءة من الدرس الأوّل' }
+    : started
+      ? { to: `/lessons/${nextLesson?.slug ?? first}`, label: 'تابِع من حيث توقّفت' }
+      : { to: `/lessons/${first}`, label: 'ابدأ الدرس الأوّل' }
 
   return (
     <div>
@@ -51,10 +66,10 @@ export function Home() {
 
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
           <Link
-            to={`/lessons/${nextLesson?.slug ?? lessons[0]?.slug ?? ''}`}
+            to={cta.to}
             className="inline-flex items-center gap-2 rounded-full bg-green-700 px-6 py-3 font-bold text-white shadow-soft transition hover:bg-green-800 dark:bg-green-600 dark:hover:bg-green-500"
           >
-            {started ? 'تابِع من حيث توقّفت' : 'ابدأ الدرس الأوّل'}
+            {cta.label}
             <ArrowLeft size={18} aria-hidden="true" />
           </Link>
           <Link
@@ -71,11 +86,17 @@ export function Home() {
         </p>
       </section>
 
-      {started && (
+      {/* At 100% the bar has nothing left to say, so the completion card takes
+          its place — and keeps it, for as long as progress stays there. The
+          burst is not played here: it belongs to the moment of ticking the last
+          lesson, on the lesson page. */}
+      {finished ? (
+        <CompletionCard total={total} className="mt-4" />
+      ) : started ? (
         <section className="mt-4 rounded-card border border-ink-200 bg-white p-5 shadow-soft dark:border-ink-800 dark:bg-ink-900">
           <ProgressBar completed={completed} total={total} percent={percent} />
         </section>
-      )}
+      ) : null}
 
       {/* ── How to use it ────────────────────────────────────────────── */}
       <section className="mt-12">

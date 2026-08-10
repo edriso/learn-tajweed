@@ -56,11 +56,17 @@ export function useProgress() {
   const total = lessons.length
   const percent = total === 0 ? 0 : Math.round((completed / total) * 100)
 
+  /**
+   * Every lesson done. Guarded on `total` so an empty curriculum — a build with
+   * no lesson files — reads as «nothing finished» rather than «all finished».
+   */
+  const finished = total > 0 && completed === total
+
   /** The first unfinished lesson, for the «تابِع من حيث توقّفت» button. */
   const nextLesson = useMemo(
     () => lessons.find((lesson) => !doneSet.has(lesson.slug)),
     [doneSet],
   )
 
-  return { isDone, toggle, reset, merge, completed, total, percent, nextLesson }
+  return { isDone, toggle, reset, merge, completed, total, percent, finished, nextLesson }
 }

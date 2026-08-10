@@ -1,6 +1,7 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { ArrowLeft, ArrowRight, BookOpen, Check, Clock, PlayCircle } from 'lucide-react'
 import { Link, useParams } from 'react-router'
+import { CompletionCard } from '@/components/CompletionCard'
 import { Markdown } from '@/components/content/Markdown'
 import { useProgress } from '@/hooks/useProgress'
 import { getLessonContent } from '@/lib/lesson-content'
@@ -13,7 +14,18 @@ import { NotFound } from './NotFound'
 export function LessonPage() {
   const { slug = '' } = useParams()
   const lesson = getLesson(slug)
-  const { isDone, toggle } = useProgress()
+  const { isDone, toggle, completed, total } = useProgress()
+
+  /*
+   * The slug whose tick completed the curriculum, or null.
+   *
+   * `finished` alone would be the wrong test: it stays true afterwards, so the
+   * card would greet the reader again on every lesson they reopened. Storing the
+   * slug rather than a boolean also means the card does not follow them to the
+   * next lesson — this route component is reused across slugs, so a boolean
+   * would survive the navigation that a keyed value cannot.
+   */
+  const [finishedAt, setFinishedAt] = useState<string | null>(null)
 
   // The site is a single page app, so the tab title has to be set by hand.
   useEffect(() => {
@@ -28,6 +40,23 @@ export function LessonPage() {
   const unit = getUnit(lesson.unit)
   const { prev, next } = neighbours(lesson.slug)
   const done = isDone(lesson.slug)
+  const justFinished = finishedAt === slug
+
+  /**
+   * `completed` here is the count *before* the toggle, so «this tick finishes
+   * the curriculum» is the lesson being newly marked and one short of the total.
+   * Un-ticking it takes the card away again rather than leaving a claim standing
+   * that is no longer true.
+   *
+   * It works on `slug` rather than `lesson.slug` — the same string, since the
+   * lesson was looked up by it — because narrowing `lesson` away from
+   * `undefined` above does not reach inside this closure.
+   */
+  function markDone() {
+    if (!done && completed + 1 === total) setFinishedAt(slug)
+    if (done) setFinishedAt(null)
+    toggle(slug)
+  }
 
   return (
     <div>
@@ -128,7 +157,7 @@ export function LessonPage() {
             The wording, the fill and the check together carry the state. */}
         <button
           type="button"
-          onClick={() => toggle(lesson.slug)}
+          onClick={markDone}
           className={cn(
             'inline-flex items-center gap-2 rounded-full px-6 py-3 font-bold transition',
             done
@@ -140,14 +169,27 @@ export function LessonPage() {
           {done ? 'أتممتَ هذا الدرس' : 'وسم الدرس كمُنجَز'}
         </button>
         {/* The label changes while the button keeps focus, and VoiceOver often
-            does not re-announce that. Same treatment as the audio button. */}
+            does not re-announce that. Same treatment as the audio button.
+
+            This region is also the one that announces finishing the curriculum,
+            rather than the card below: this element is mounted before there is
+            anything to say, and the card is not. A live region created in the
+            same tick as its text is the race screen readers lose. */}
         <span role="status" className="sr-only">
-          {done ? 'تمّ وسم الدرس كمُنجَز' : ''}
+          {justFinished
+            ? 'تمّ وسم الدرس كمُنجَز، وبه أتممتَ دروس الدليل كلَّها.'
+            : done
+              ? 'تمّ وسم الدرس كمُنجَز'
+              : ''}
         </span>
         <p className="mt-2 text-sm text-ink-600 dark:text-ink-400">
           يُحفَظ تقدُّمك على جهازك وحده، بلا حسابٍ ولا خادم.
         </p>
       </div>
+
+      {/* The whole curriculum, finished on this click. Nothing but the tick that
+          completes it puts this here — see `finishedAt`. */}
+      {justFinished && <CompletionCard total={total} celebrate showLessonsLink className="mt-6" />}
 
       {/* ── Previous / next ──────────────────────────────────────────── */}
       <nav aria-label="التنقّل بين الدروس" className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2">

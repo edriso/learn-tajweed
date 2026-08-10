@@ -145,6 +145,7 @@ src/
   lib/quiz.ts             extracts every quiz question for the practice page
   components/content/     the custom Markdown blocks (ayah, examples, letters, …)
   components/layout/      header, footer, settings panel, theme toggle, back-to-top
+  components/CompletionCard.tsx   finishing the last lesson: shared by Home and LessonPage
   pages/                  Home, LessonPage, Practice, Cheatsheet, Glossary, About,
                           NotFound, RouteError
 ```
@@ -221,6 +222,30 @@ Decisions worth keeping:
   a real error and gets the error page instead of another reload. Never call
   `preventDefault()` on Vite's `vite:preloadError` — that makes the import resolve to
   `undefined` and the failure resurfaces as an unrecognisable `TypeError`.
+- **Finishing the curriculum is marked once, in two different registers.**
+  `components/CompletionCard.tsx` serves both. The lesson page mounts it with
+  `celebrate` at the instant the last remaining lesson is ticked, and that is the
+  only place the burst plays; the home page mounts it in place of the progress bar
+  for as long as progress stays at 100%, with no animation, because an entrance
+  that replays on every visit stops reading as a celebration. The lesson page
+  gates it on `finishedAt === slug` rather than on `finished`, which stays true
+  afterwards — a boolean would greet the reader again on every lesson they
+  reopened, and would follow them to the next one, since react-router reuses this
+  route component across slugs.
+
+  Two things about the card are load-bearing rather than decorative. Every
+  keyframe ends on the frame that should survive `prefers-reduced-motion`, since
+  the global rule in `index.css` collapses durations to nothing and lands each
+  animation on its last frame — so the badge ends settled and the burst ends at
+  `opacity: 0`. And the card scrolls *itself* into view with `block: 'nearest'`
+  and no `focus()`: the button that summons it is the last thing on a lesson, so
+  on a phone the card mounts entirely below the fold, and `focus()` would cancel
+  that smooth scroll exactly as it did the back-to-top button's.
+
+  The wording is not a detail either. The verse is a du'a for more knowledge and
+  the card says outright that a shaykh is still the next step — congratulating a
+  reader into thinking they are finished would teach the one thing `about.md`
+  denies.
 - **No backend, no accounts, no analytics.** Progress is `localStorage` only. The one
   way it leaves the device is the reader's own doing: export and import buttons in the
   settings panel (`components/layout/ProgressTransfer.tsx`) write and read a small JSON

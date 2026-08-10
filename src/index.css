@@ -528,6 +528,103 @@
   .dark .prose hr {
     border-color: var(--color-ink-800);
   }
+
+  /* --------------------------------------------------------------------
+     Finishing the curriculum: the one animation on this site that exists to
+     be noticed. See src/components/CompletionCard.tsx.
+
+     Every keyframe below ends on the frame that should survive
+     `prefers-reduced-motion`. The global rule at the bottom of this file
+     collapses each duration to 0.001ms, so an animation snaps straight to
+     its last frame — which means the badge lands settled and upright, and
+     the halo and flecks land at `opacity: 0` and are simply never seen. That
+     is the whole reduced-motion handling; there is no second code path to
+     keep in step with this one.
+
+     The flecks are thrown at an angle from the centre of the badge rather
+     than offset from an edge, so the burst is symmetric and there is no side
+     for RTL to mirror wrongly.
+     -------------------------------------------------------------------- */
+  .khatm-badge {
+    animation: khatm-badge 620ms cubic-bezier(0.22, 1.4, 0.36, 1) both;
+  }
+
+  .khatm-halo {
+    position: absolute;
+    inset: -0.375rem;
+    border-radius: 9999px;
+    border: 2px solid var(--color-gold-400);
+    opacity: 0;
+    animation: khatm-halo 1s ease-out both;
+  }
+
+  .khatm-fleck {
+    position: absolute;
+    /* `inset: 0` plus `margin: auto` on a sized box centres it on the badge,
+       which is what makes `rotate() translateY()` below read as «outward». */
+    inset: 0;
+    margin: auto;
+    inline-size: 0.375rem;
+    block-size: 0.375rem;
+    border-radius: 9999px;
+    background: var(--color-gold-500);
+    opacity: 0;
+    animation: khatm-fleck 900ms ease-out var(--khatm-delay, 0ms) both;
+  }
+
+  .dark .khatm-fleck {
+    background: var(--color-gold-400);
+  }
+}
+
+@keyframes khatm-badge {
+  from {
+    opacity: 0;
+    transform: scale(0.4) rotate(-25deg);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes khatm-halo {
+  0% {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  30% {
+    opacity: 0.85;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(2.4);
+  }
+}
+
+/*
+ * The flecks have to clear the badge to read as a burst rather than as dots
+ * printed on it: the badge is 3.5rem across, so 1.75rem is its edge and every
+ * frame after the first is outside it.
+ *
+ * The far end is capped at 3.4rem for the other side of the same problem. The
+ * card's padding puts the badge's centre 3.5rem from the card's top edge, so a
+ * fleck thrown further than that leaves the card and lands on whatever sits
+ * above it — on the lesson page, the mark-as-done button.
+ */
+@keyframes khatm-fleck {
+  0% {
+    opacity: 0;
+    transform: rotate(var(--khatm-angle, 0deg)) translateY(-1.4rem) scale(0.3);
+  }
+  40% {
+    opacity: 1;
+    transform: rotate(var(--khatm-angle, 0deg)) translateY(-2.5rem) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(var(--khatm-angle, 0deg)) translateY(-3.4rem) scale(0.5);
+  }
 }
 
 /* Users who prefer reduced motion get no animation anywhere. */
