@@ -24,3 +24,16 @@ export function countLabel(n: number, [one, two, few, many]: [string, string, st
   if (n >= 3 && n <= 10) return `${toArabicDigits(n)} ${few}`
   return `${toArabicDigits(n)} ${many}`
 }
+
+/**
+ * Counting lessons after a verb — «أتممتَ ٣٤ درسًا» — so the noun takes the
+ * accusative. Shared rather than retyped: two places say this sentence, and the
+ * settings panel says a third one in the nominative («المحفوظ: ٣٤ درسًا»), which
+ * is why that one keeps its own words instead of bending these.
+ */
+export const LESSONS_COUNTED: [string, string, string, string] = [
+  'درسًا واحدًا',
+  'درسين',
+  'دروس',
+  'درسًا',
+]

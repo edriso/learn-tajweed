@@ -88,7 +88,8 @@ src/
   lib/glossary.ts         terms that are not rule names
   components/content/     the custom Markdown blocks
   components/layout/      header, footer, theme toggle, back-to-top
-  components/CompletionCard.tsx   what the reader sees on finishing the last lesson
+  components/CompletionCard.tsx   what the reader sees on finishing the guide
+  components/ProgressBar.tsx      how far through the curriculum they are
   pages/                  Home, LessonPage, Practice, Cheatsheet, Glossary, About
 docs/                     how the pipeline works, how to write a lesson
 ```

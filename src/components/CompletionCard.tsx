@@ -3,7 +3,7 @@ import { BookOpen, ScrollText, Sparkles, Target } from 'lucide-react'
 import { Link } from 'react-router'
 import { ayahLabel, getAyah, getSpan } from '@/lib/quran'
 import { UNITS } from '@/lib/units'
-import { cn, countLabel, toArabicDigits } from '@/lib/utils'
+import { cn, countLabel, LESSONS_COUNTED, toArabicDigits } from '@/lib/utils'
 
 /**
  * What the reader sees when the last lesson is ticked.
@@ -148,7 +148,7 @@ export function CompletionCard({
         تمَّ المنهج، والحمد لله
       </h2>
       <p className="mt-2 text-ink-600 dark:text-ink-400">
-        أتممتَ {countLabel(total, ['درسًا واحدًا', 'درسين', 'دروس', 'درسًا'])} في{' '}
+        أتممتَ {countLabel(total, LESSONS_COUNTED)} في{' '}
         {countLabel(UNITS.length, ['وحدةٍ واحدة', 'وحدتين', 'وحدات', 'وحدة'])}، من مخارج الحروف
         إلى التطبيق والإتقان.
       </p>

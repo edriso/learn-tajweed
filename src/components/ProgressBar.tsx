@@ -1,5 +1,17 @@
 import { toArabicDigits } from '@/lib/utils'
 
+/**
+ * How far through the curriculum the reader is.
+ *
+ * Two callers: the home page, above the units, and the foot of a lesson once it
+ * has been ticked. It reports and nothing else — no streak, no score, no badge.
+ * Which is the point: the one study to look at gamifying Qur'anic learning
+ * found that points and badges did raise engagement, that the engagement did
+ * not reach learning at all (R² = 0.021), and that extrinsic rewards risk
+ * displacing the intrinsic motive a reader came with. A bar that answers «how
+ * much is left» is information the reader asked for by ticking. A reward for
+ * ticking would be something else.
+ */
 export function ProgressBar({
   completed,
   total,

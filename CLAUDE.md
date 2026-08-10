@@ -145,7 +145,8 @@ src/
   lib/quiz.ts             extracts every quiz question for the practice page
   components/content/     the custom Markdown blocks (ayah, examples, letters, …)
   components/layout/      header, footer, settings panel, theme toggle, back-to-top
-  components/CompletionCard.tsx   finishing the last lesson: shared by Home and LessonPage
+  components/CompletionCard.tsx   finishing the guide: shared by Home and LessonPage
+  components/ProgressBar.tsx      how far through: the same two pages. NOT under home/
   pages/                  Home, LessonPage, Practice, Cheatsheet, Glossary, About,
                           NotFound, RouteError
 ```
@@ -222,16 +223,42 @@ Decisions worth keeping:
   a real error and gets the error page instead of another reload. Never call
   `preventDefault()` on Vite's `vite:preloadError` — that makes the import resolve to
   `undefined` and the failure resurfaces as an unrecognisable `TypeError`.
-- **Finishing the curriculum is marked once, in two different registers.**
-  `components/CompletionCard.tsx` serves both. The lesson page mounts it with
-  `celebrate` at the instant the last remaining lesson is ticked, and that is the
-  only place the burst plays; the home page mounts it in place of the progress bar
-  for as long as progress stays at 100%, with no animation, because an entrance
-  that replays on every visit stops reading as a celebration. The lesson page
-  gates it on `finishedAt === slug` rather than on `finished`, which stays true
-  afterwards — a boolean would greet the reader again on every lesson they
-  reopened, and would follow them to the next one, since react-router reuses this
-  route component across slugs.
+- **Progress is acknowledged in three tiers, and the gap between them is the
+  design.** Do not flatten them, and in particular do not promote tier one.
+
+  | Tier | How often | What happens |
+  | --- | --- | --- |
+  | A lesson ticked | 34× | The button fills in, and `ProgressBar` appears at the foot of the lesson. No animation, no score. |
+  | A unit finished | 11× | One line naming the unit, gold-bordered, fading in. `khatm-note`. |
+  | The guide finished | 1× | `CompletionCard` with the burst. |
+
+  The reason tier one is deliberately flat is not taste. Confetti on every task
+  is a known failure: hedonic adaptation is fast, the fiftieth burst irritates,
+  and the accepted rule is that intensity scales with significance — so a burst
+  thirty-four times over would cost the thirty-fourth one the only thing it had.
+  The sharper reason is the subject. The one study to measure gamifying Qur'anic
+  learning found points and badges *did* lift engagement, that the engagement did
+  not reach learning at all (R² = 0.021), that leaderboards were actively
+  negative, and that extrinsic rewards risk displacing the intrinsic motive a
+  reader arrived with. So tier one reports and does not reward: a bar answering
+  «how much is left» is information the reader asked for by ticking. Add a
+  streak, a score or a badge and this site is doing the thing that study warns
+  about, to the Qur'an.
+
+  Mechanically, all three tiers hang off one piece of state in `LessonPage`:
+  `markedAt`, the slug the reader ticked *on this page*. The stored progress
+  cannot answer «did they just do this» — `finished` and a completed unit both
+  stay true afterwards, so a page opened next week would congratulate them
+  again. It holds a slug rather than a boolean so the greeting also cannot follow
+  them to the next lesson, since react-router reuses this route component across
+  slugs. Un-ticking clears it, because every claim resting on it is then false.
+  Tiers two and three are mutually exclusive: the last lesson of the guide is
+  also the last of its unit, and the card already says everything the line would.
+
+  One live region in the mark-as-done box carries all three announcements, rather
+  than each tier bringing its own — it is mounted before there is anything to
+  say, and a region created in the same tick as its text is the race screen
+  readers lose. It is also where a screen-reader user gets the count.
 
   Two things about the card are load-bearing rather than decorative. Every
   keyframe ends on the frame that should survive `prefers-reduced-motion`, since
