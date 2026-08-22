@@ -50,8 +50,9 @@ const router = createBrowserRouter(
       ],
     },
   ],
-  // BASE_URL comes from `base` in vite.config.ts, so every link keeps the
-  // /learn-tajweed/ prefix that GitHub Pages serves the site under.
+  // BASE_URL comes from `base` in vite.config.ts, itself from site.config.mjs.
+  // It is '/' on the custom domain and '/learn-tajweed/' on the GitHub Pages
+  // fallback, so every link follows whichever the build was made for.
   { basename: import.meta.env.BASE_URL },
 )
 

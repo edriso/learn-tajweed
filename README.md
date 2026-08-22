@@ -1,6 +1,6 @@
 # تعلَّم التجويد · Learn Tajweed
 
-> **الموقع → [edriso.github.io/learn-tajweed](https://edriso.github.io/learn-tajweed/)**
+> **الموقع → [dartajweed.com](https://dartajweed.com/)**
 
 دليلٌ مجّانيٌّ مفتوح المصدر لتعلُّم أحكام تجويد القرآن الكريم، بالعربيّة الفصحى، على
 **رواية حفص عن عاصم من طريق الشاطبيّة**.
@@ -119,8 +119,15 @@ the field so it can be checked.
 ## Deployment
 
 Every push to `main` runs the workflow in `.github/workflows/deploy.yml`, which verifies
-the text, builds the site, and publishes it to GitHub Pages at
-[edriso.github.io/learn-tajweed](https://edriso.github.io/learn-tajweed/).
+the text, builds the site, and publishes it to GitHub Pages, served at
+[dartajweed.com](https://dartajweed.com/).
+
+Where the site lives is [`site.config.mjs`](./site.config.mjs) and nowhere else: `base`
+in `vite.config.ts`, the icon and manifest links in `index.html`, every canonical, Open
+Graph, JSON-LD and sitemap URL, and the address on the share card all read it. It also
+holds the way back to `edriso.github.io/learn-tajweed` if the domain ever lapses —
+`SITE_TARGET=pages npm run build` builds that, and is worth running now and then so the
+escape hatch is known to work before it is needed.
 
 ## Licence
 

@@ -8,7 +8,7 @@ A free Arabic guide to Qur'anic tajweed, on **رواية حفص عن عاصم م
 Thirty-four lessons in eleven units, written for someone who reads Arabic and knows
 tashkeel but does not know the names of the rules.
 
-- **Live site:** https://edriso.github.io/learn-tajweed/
+- **Live site:** https://dartajweed.com/
 - **Repo:** https://github.com/edriso/learn-tajweed
 
 The audience reads Arabic natively. Clarity beats cleverness, and correctness beats
@@ -206,9 +206,29 @@ Decisions worth keeping:
   diacritics.
 - **Rule colours are a teaching aid, not part of the revelation.** Every colour is always
   accompanied by the rule's name in words, so the page works without colour.
-- **GitHub Pages** serves the site under `/learn-tajweed/`. That is `base` in
-  `vite.config.ts` and flows into the router through `import.meta.env.BASE_URL`.
-  `scripts/prerender-routes.mjs` then writes a copy of `index.html` at every route,
+- **Where the site lives is `site.config.mjs`, and nowhere else.** GitHub Pages hosts
+  it; `dartajweed.com` is the address. Five things need to know that and each used to
+  hardcode it: `base` in `vite.config.ts` (which flows into the router through
+  `import.meta.env.BASE_URL`), the icon and manifest links in `index.html`, every
+  absolute URL written by `scripts/prerender-routes.mjs`, the address printed on the
+  share card by `scripts/build-og-image.mjs`, and `public/manifest.webmanifest`. A
+  disagreement between them does not fail the build — it ships a canonical pointing
+  somewhere the reader is not.
+
+  Three of those now need no origin at all. `index.html` uses Vite's `%BASE_URL%`
+  placeholder; the manifest uses paths relative to itself (`"./"`, `"./icon-192.png"`),
+  which resolve correctly under any base; and `og:image` is not in `index.html` at all,
+  because it must be absolute — the prerender pass inserts it, and throws if the tag it
+  anchors to ever stops matching.
+
+  The `pages` target in that file is the way back if the domain lapses, and it is
+  exercisable today with `SITE_TARGET=pages npm run build`. Build it occasionally: an
+  escape hatch nobody has opened is an escape hatch nobody knows is stuck. Falling back
+  for real means removing the custom domain in Settings → Pages **and** setting
+  `SITE_TARGET=pages` on the build step in `deploy.yml` — the domain is repository
+  settings, not a file in the repo, because `actions/deploy-pages` ignores `CNAME`.
+- **Deep links get a real 200.**
+  `scripts/prerender-routes.mjs` writes a copy of `index.html` at every route,
   so a deep link answers 200 rather than the 404 a bare SPA fallback would give. It
   also rewrites each copy's `<title>`, description, Open Graph tags and canonical
   from that lesson's own frontmatter, because the crawlers behind a WhatsApp or

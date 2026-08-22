@@ -41,16 +41,13 @@ import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { promisify } from 'node:util'
 import { parse } from 'yaml'
+import { BASE, SITE_URL } from '../site.config.mjs'
 
 const run = promisify(execFile)
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const DIST = resolve(ROOT, 'dist')
 const SOURCE = resolve(DIST, 'index.html')
-
-/** Must match `base` in vite.config.ts and the Pages URL it is served from. */
-const ORIGIN = 'https://edriso.github.io'
-const BASE = '/learn-tajweed/'
 
 /** Kept in step with SITE_NAME in src/lib/site.ts. */
 const SITE_NAME = 'تعلَّم التجويد'
@@ -189,7 +186,7 @@ async function fontPreloads() {
 
 const preloads = await fontPreloads()
 
-const template = (await readFile(SOURCE, 'utf8')).replace(
+const withPreloads = (await readFile(SOURCE, 'utf8')).replace(
   '</head>',
   `  ${preloads}\n  </head>`,
 )
@@ -197,7 +194,7 @@ const template = (await readFile(SOURCE, 'utf8')).replace(
 // This pass rewrites dist/index.html in place, so running it twice over the same
 // dist would stack a second canonical on top of the first. Vite regenerates the
 // file on every build, so this only catches the script being run on its own.
-if (template.includes('rel="canonical"')) {
+if (withPreloads.includes('rel="canonical"')) {
   throw new Error(
     'prerender: dist/index.html مُعالَجٌ من قبل. شغّل `npm run build` كاملًا بدل هذا السكربت وحده.',
   )
@@ -218,10 +215,22 @@ function replaceTag(html, pattern, replacement, label) {
   return html.replace(pattern, replacement)
 }
 
+/**
+ * og:image is inserted here rather than written in index.html, because it has
+ * to be absolute — a link-preview crawler has no base to resolve against — and
+ * the origin is known only to site.config.mjs. Every page below inherits it.
+ */
+const template = replaceTag(
+  withPreloads,
+  /<meta\s+property="og:image:width"[\s\S]*?\/>/,
+  (tag) => `<meta property="og:image" content="${SITE_URL}og.png" />\n    ${tag}`,
+  'og:image:width',
+)
+
 function render(route) {
   const { path, title, description, ogType } = route
   const fullTitle = `${title} · ${SITE_NAME}`
-  const url = `${ORIGIN}${BASE}${path}/`
+  const url = `${SITE_URL}${path}/`
   const t = escapeHtml(fullTitle)
   const d = escapeHtml(description)
 
@@ -254,7 +263,7 @@ function render(route) {
     'og:type',
   )
 
-  const crumbs = [{ name: SITE_NAME, item: `${ORIGIN}${BASE}` }]
+  const crumbs = [{ name: SITE_NAME, item: SITE_URL }]
   // Three units are named after their one lesson (القلقلة, الوقف والابتداء,
   // المتماثلان…), and repeating the name would render as «… › القلقلة › القلقلة».
   if (route.unit && route.unit !== title) crumbs.push({ name: route.unit })
@@ -286,8 +295,8 @@ const homeLd = jsonLd({
   '@graph': [
     {
       '@type': 'WebSite',
-      '@id': `${ORIGIN}${BASE}#website`,
-      url: `${ORIGIN}${BASE}`,
+      '@id': `${SITE_URL}#website`,
+      url: SITE_URL,
       name: SITE_NAME,
       inLanguage: 'ar',
       description:
@@ -300,9 +309,9 @@ const homeLd = jsonLd({
     },
     {
       '@type': 'EducationalOrganization',
-      '@id': `${ORIGIN}${BASE}#org`,
+      '@id': `${SITE_URL}#org`,
       name: SITE_NAME,
-      url: `${ORIGIN}${BASE}`,
+      url: SITE_URL,
     },
   ],
 })
@@ -311,8 +320,8 @@ let home = replaceTag(
   template,
   /<meta\s+property="og:type"[\s\S]*?\/>/,
   `<meta property="og:type" content="website" />\n    ` +
-    `<meta property="og:url" content="${ORIGIN}${BASE}" />\n    ` +
-    `<link rel="canonical" href="${ORIGIN}${BASE}" />`,
+    `<meta property="og:url" content="${SITE_URL}" />\n    ` +
+    `<link rel="canonical" href="${SITE_URL}" />`,
   'og:type',
 )
 home = home.replace('</head>', `  ${homeLd}\n  </head>`)
@@ -358,7 +367,7 @@ const entries = [{ path: '', file: 'src/pages/Home.tsx' }, ...routes]
 const urls = []
 for (const entry of entries) {
   const lastmod = await lastModified(entry.file)
-  const loc = `${ORIGIN}${BASE}${entry.path}${entry.path ? '/' : ''}`
+  const loc = `${SITE_URL}${entry.path}${entry.path ? '/' : ''}`
   urls.push(
     `  <url><loc>${loc}</loc>${lastmod ? `<lastmod>${lastmod}</lastmod>` : ''}</url>`,
   )
@@ -372,16 +381,21 @@ await writeFile(
 )
 
 /*
- * Served at /learn-tajweed/robots.txt, not at the origin root, because that
- * root belongs to the user's GitHub Pages account and not to this repository.
- * The Robots Exclusion Protocol only reads the root, so the Sitemap: line here
- * does NOT give Google sitemap auto-discovery — submit the sitemap once in
- * Search Console instead. Bing and some other crawlers do read this path, and
- * a missing robots.txt means allow-all either way, so it costs nothing.
+ * The Robots Exclusion Protocol reads this file only at the origin root, so
+ * whether the Sitemap: line below is worth anything depends on which target
+ * site.config.mjs built for.
+ *
+ * On the custom domain, base is '/' and this lands at the root, so the line
+ * does give Google sitemap auto-discovery. On the GitHub Pages fallback it
+ * lands at /learn-tajweed/robots.txt — that root belongs to the account, not
+ * to this repository — and the line is then ignored by Google, though Bing and
+ * some others do read the path. Submitting the sitemap once in Search Console
+ * is what actually guarantees it either way; a missing robots.txt means
+ * allow-all regardless, so writing it costs nothing.
  */
 await writeFile(
   resolve(DIST, 'robots.txt'),
-  `User-agent: *\nAllow: /\n\nSitemap: ${ORIGIN}${BASE}sitemap.xml\n`,
+  `User-agent: *\nAllow: /\n\nSitemap: ${SITE_URL}sitemap.xml\n`,
   'utf8',
 )
 

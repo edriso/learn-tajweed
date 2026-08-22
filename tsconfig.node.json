@@ -6,6 +6,9 @@
     "types": ["node"],
     "skipLibCheck": true,
 
+    /* site.config.mjs is plain JS: the build scripts are .mjs and import it too. */
+    "allowJs": true,
+
     /* Bundler mode */
     "module": "nodenext",
     "allowImportingTsExtensions": true,
@@ -19,5 +22,5 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["vite.config.ts"]
+  "include": ["vite.config.ts", "site.config.mjs"]
 }

@@ -22,6 +22,7 @@ import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { SITE_LABEL } from '../site.config.mjs'
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const CORPUS = resolve(ROOT, 'data/quran-uthmani.txt')
@@ -96,7 +97,7 @@ h1 .accent{color:#216342}
   </div>
   <div class="foot">
     <p class="facts"><b>٣٤</b> درسًا في <b>١١</b> وحدة · مجّانيّ · بلا إعلانات</p>
-    <p class="url">edriso.github.io/learn-tajweed</p>
+    <p class="url">${SITE_LABEL}</p>
   </div>
 </div></body></html>`
 }
