@@ -16,11 +16,8 @@
  */
 import { createHash } from 'node:crypto'
 import { mkdir, writeFile } from 'node:fs/promises'
-import { dirname, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
-
-const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
-const TARGET = resolve(ROOT, 'data/quran-uthmani.txt')
+import { dirname } from 'node:path'
+import { CORPUS as TARGET, CORPUS_SHA256, NAMES } from './corpus.mjs'
 
 /**
  * Every flag matters. Drop `marks` and the pause signs disappear; drop `rub`
@@ -31,9 +28,6 @@ const SOURCE =
   'https://tanzil.net/pub/download/index.php' +
   '?quranType=uthmani&outType=txt-2&marks=true&sajdah=true&rub=true&tatweel=true&agree=true'
 
-/** SHA-256 of the exact bytes we expect. Change this only on purpose. */
-const EXPECTED_SHA256 = '7f30c647331a61100ebf24a80507dc0fcdd9f2df97f1312b5b2dfcb982a7f326'
-
 const response = await fetch(SOURCE)
 if (!response.ok) {
   console.error(`✗ Tanzil returned HTTP ${response.status}. Nothing was written.`)
@@ -43,12 +37,12 @@ if (!response.ok) {
 const bytes = Buffer.from(await response.arrayBuffer())
 const sha256 = createHash('sha256').update(bytes).digest('hex')
 
-if (sha256 !== EXPECTED_SHA256) {
+if (sha256 !== CORPUS_SHA256) {
   console.error('✗ Checksum mismatch. Nothing was written.')
-  console.error(`  expected ${EXPECTED_SHA256}`)
+  console.error(`  expected ${CORPUS_SHA256}`)
   console.error(`  received ${sha256}`)
   console.error('\n  If Tanzil genuinely published a new revision, review the diff by hand')
-  console.error('  before updating EXPECTED_SHA256 in this file.')
+  console.error('  before updating CORPUS_SHA256 in scripts/corpus.mjs.')
   process.exit(1)
 }
 
@@ -78,5 +72,5 @@ if (list.length !== 114) {
 const names = Object.fromEntries(
   list.map((chapter) => [chapter.id, { name: chapter.name_arabic, verses: chapter.verses_count }]),
 )
-await writeFile(resolve(ROOT, 'data/surah-names.json'), `${JSON.stringify(names, null, 2)}\n`)
+await writeFile(NAMES, `${JSON.stringify(names, null, 2)}\n`)
 console.log('✓ Wrote data/surah-names.json (114 surahs)')

@@ -4,6 +4,9 @@
   "version": "0.0.0",
   "license": "0BSD",
   "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "dev": "npm run content:build && vite",
     "build": "npm run content:build && tsc -b && vite build && node scripts/prerender-routes.mjs",

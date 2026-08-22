@@ -29,12 +29,10 @@ import { readdir, readFile, writeFile } from 'node:fs/promises'
 import { dirname, extname, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { parse } from 'yaml'
+import { CORPUS, CORPUS_SHA256, NAMES } from './corpus.mjs'
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
-const CORPUS = resolve(ROOT, 'data/quran-uthmani.txt')
-const NAMES = resolve(ROOT, 'data/surah-names.json')
 const OUTPUT = resolve(ROOT, 'src/content/quran.generated.json')
-const CORPUS_SHA256 = '7f30c647331a61100ebf24a80507dc0fcdd9f2df97f1312b5b2dfcb982a7f326'
 
 const SOURCE_NOTE =
   'نصّ المصحف برواية ' +

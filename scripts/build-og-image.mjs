@@ -23,13 +23,10 @@ import { tmpdir } from 'node:os'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { IS_LOCAL, SITE_LABEL } from '../site.config.mjs'
+import { CORPUS, CORPUS_SHA256 } from './corpus.mjs'
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
-const CORPUS = resolve(ROOT, 'data/quran-uthmani.txt')
 const OUT = resolve(ROOT, 'public/og.png')
-
-/** Must match CORPUS_SHA256 in scripts/build-quran.mjs. */
-const EXPECTED_SHA256 = '7f30c647331a61100ebf24a80507dc0fcdd9f2df97f1312b5b2dfcb982a7f326'
 
 /** Al-Muzzammil 73:4. The card shows the last three words. */
 const AYAH = { surah: '73', ayah: '4', lastWords: 3 }
@@ -46,10 +43,10 @@ async function verseFromCorpus() {
   // The corpus is pinned. If it ever changes, every verse on the site is
   // suspect, so refuse rather than render something unverified.
   const sha = createHash('sha256').update(bytes).digest('hex')
-  if (EXPECTED_SHA256 !== sha && process.env.OG_ALLOW_CORPUS_DRIFT !== '1') {
+  if (CORPUS_SHA256 !== sha && process.env.OG_ALLOW_CORPUS_DRIFT !== '1') {
     throw new Error(
-      `og: بصمة المصحف تغيّرت.\n  المتوقَّع: ${EXPECTED_SHA256}\n  الموجود : ${sha}\n` +
-        `شغّل \`npm run quran:fetch\` وتحقّق، أو حدِّث EXPECTED_SHA256 في هذا الملف.`,
+      `og: بصمة المصحف تغيّرت.\n  المتوقَّع: ${CORPUS_SHA256}\n  الموجود : ${sha}\n` +
+        `شغّل \`npm run quran:fetch\` وتحقّق، أو حدِّث CORPUS_SHA256 في scripts/corpus.mjs.`,
     )
   }
 
