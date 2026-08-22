@@ -119,15 +119,30 @@ the field so it can be checked.
 ## Deployment
 
 Every push to `main` runs the workflow in `.github/workflows/deploy.yml`, which verifies
-the text, builds the site, and publishes it to GitHub Pages, served at
-[dartajweed.com](https://dartajweed.com/).
+the text and then builds the site **twice**, publishing it at two addresses:
 
-Where the site lives is [`site.config.mjs`](./site.config.mjs) and nowhere else: `base`
-in `vite.config.ts`, the icon and manifest links in `index.html`, every canonical, Open
-Graph, JSON-LD and sitemap URL, and the address on the share card all read it. It also
-holds the way back to `edriso.github.io/learn-tajweed` if the domain ever lapses —
-`SITE_TARGET=pages npm run build` builds that, and is worth running now and then so the
-escape hatch is known to work before it is needed.
+| Address | Served from | Role |
+| --- | --- | --- |
+| [dartajweed.com](https://dartajweed.com/) | `edriso/dartajweed` | The address to give people |
+| [edriso.github.io/learn-tajweed](https://edriso.github.io/learn-tajweed/) | this repository | Reachable if the domain lapses |
+
+The second exists because GitHub Pages 301s a repository's own Pages URL to its custom
+domain, with no way to turn that off — so once the domain was attached, the github.io
+address stopped being a fallback and became a signpost to the domain. Both would go dark
+together if the domain expired. `edriso/dartajweed` holds no source, only the built
+site, force-pushed by the `mirror` job over an SSH deploy key scoped to that one
+repository.
+
+Both builds serve their own assets and claim the *same* canonical, `dartajweed.com`, so
+the two sites never compete in search. Where the site lives is
+[`site.config.mjs`](./site.config.mjs) and nowhere else — `base` in `vite.config.ts`, the
+icon and manifest links in `index.html`, every canonical, Open Graph, JSON-LD and sitemap
+URL, and the address on the share card all read it.
+
+```bash
+SITE_TARGET=domain npm run build   # what dartajweed.com serves (the default)
+SITE_TARGET=pages  npm run build   # what this repository's own Pages site serves
+```
 
 ## Licence
 

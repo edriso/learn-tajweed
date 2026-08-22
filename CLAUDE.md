@@ -221,12 +221,38 @@ Decisions worth keeping:
   because it must be absolute — the prerender pass inserts it, and throws if the tag it
   anchors to ever stops matching.
 
-  The `pages` target in that file is the way back if the domain lapses, and it is
-  exercisable today with `SITE_TARGET=pages npm run build`. Build it occasionally: an
-  escape hatch nobody has opened is an escape hatch nobody knows is stuck. Falling back
-  for real means removing the custom domain in Settings → Pages **and** setting
-  `SITE_TARGET=pages` on the build step in `deploy.yml` — the domain is repository
-  settings, not a file in the repo, because `actions/deploy-pages` ignores `CNAME`.
+- **The guide is published twice, and the second copy is not a nicety.** GitHub Pages
+  301s a repository's own Pages URL to its custom domain and gives you no way to turn
+  that off. So the moment `dartajweed.com` was attached,
+  `edriso.github.io/learn-tajweed/` stopped being a fallback and became a signpost
+  pointing at the domain — and if the domain ever lapsed, **both addresses would go dark
+  together**, including for readers whose browsers had cached that 301. A second
+  repository serving the same output is the only way to hold an address that does not
+  depend on the domain being paid for.
+
+  | Address | Repository | Publishing | Role |
+  | --- | --- | --- | --- |
+  | `dartajweed.com` | `edriso/dartajweed` | branch `main` | The address to give people |
+  | `edriso.github.io/learn-tajweed/` | this one | Actions | Survives the domain |
+
+  `deploy.yml` builds twice and the `mirror` job force-pushes the domain build to
+  `edriso/dartajweed`, which holds **no source** — only generated output, replaced
+  wholesale each deploy, single-commit history so it cannot grow without bound. It
+  authenticates with an SSH deploy key scoped to that one repository, in
+  `MIRROR_DEPLOY_KEY`; a personal access token would have carried the whole account.
+
+  Three things there are load-bearing. The mirror's build **writes a `CNAME` file** —
+  branch-based Pages reads it, unlike `actions/deploy-pages` which ignores it, and since
+  every mirror push is a force-push, omitting it would silently drop the custom domain on
+  the next deploy. Both builds **claim the same canonical**, `dartajweed.com`, so two
+  sites of identical text never compete in search — but each serves **its own
+  `og:image`**, so the mirror's link previews keep working even when the domain the
+  canonicals name is unreachable, which is the entire point of it. And only the canonical
+  build advertises `Sitemap:` in `robots.txt`; from the mirror that line would name URLs
+  on another host, for nothing.
+
+  If the domain does lapse, the mirror already works and needs no action. Repointing the
+  canonicals is then a one-line change to `CANONICAL` in `site.config.mjs`.
 - **Deep links get a real 200.**
   `scripts/prerender-routes.mjs` writes a copy of `index.html` at every route,
   so a deep link answers 200 rather than the 404 a bare SPA fallback would give. It

@@ -41,7 +41,7 @@ import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { promisify } from 'node:util'
 import { parse } from 'yaml'
-import { BASE, SITE_URL } from '../site.config.mjs'
+import { BASE, CANONICAL_URL, IS_CANONICAL, SITE_URL } from '../site.config.mjs'
 
 const run = promisify(execFile)
 
@@ -219,6 +219,10 @@ function replaceTag(html, pattern, replacement, label) {
  * og:image is inserted here rather than written in index.html, because it has
  * to be absolute — a link-preview crawler has no base to resolve against — and
  * the origin is known only to site.config.mjs. Every page below inherits it.
+ *
+ * This one is SITE_URL, not CANONICAL_URL: it points at the copy this build
+ * serves. The mirror's cards then keep working even while the domain the
+ * canonicals name is unreachable, which is the whole reason the mirror exists.
  */
 const template = replaceTag(
   withPreloads,
@@ -230,7 +234,7 @@ const template = replaceTag(
 function render(route) {
   const { path, title, description, ogType } = route
   const fullTitle = `${title} · ${SITE_NAME}`
-  const url = `${SITE_URL}${path}/`
+  const url = `${CANONICAL_URL}${path}/`
   const t = escapeHtml(fullTitle)
   const d = escapeHtml(description)
 
@@ -263,7 +267,7 @@ function render(route) {
     'og:type',
   )
 
-  const crumbs = [{ name: SITE_NAME, item: SITE_URL }]
+  const crumbs = [{ name: SITE_NAME, item: CANONICAL_URL }]
   // Three units are named after their one lesson (القلقلة, الوقف والابتداء,
   // المتماثلان…), and repeating the name would render as «… › القلقلة › القلقلة».
   if (route.unit && route.unit !== title) crumbs.push({ name: route.unit })
@@ -295,8 +299,8 @@ const homeLd = jsonLd({
   '@graph': [
     {
       '@type': 'WebSite',
-      '@id': `${SITE_URL}#website`,
-      url: SITE_URL,
+      '@id': `${CANONICAL_URL}#website`,
+      url: CANONICAL_URL,
       name: SITE_NAME,
       inLanguage: 'ar',
       description:
@@ -309,9 +313,9 @@ const homeLd = jsonLd({
     },
     {
       '@type': 'EducationalOrganization',
-      '@id': `${SITE_URL}#org`,
+      '@id': `${CANONICAL_URL}#org`,
       name: SITE_NAME,
-      url: SITE_URL,
+      url: CANONICAL_URL,
     },
   ],
 })
@@ -320,8 +324,8 @@ let home = replaceTag(
   template,
   /<meta\s+property="og:type"[\s\S]*?\/>/,
   `<meta property="og:type" content="website" />\n    ` +
-    `<meta property="og:url" content="${SITE_URL}" />\n    ` +
-    `<link rel="canonical" href="${SITE_URL}" />`,
+    `<meta property="og:url" content="${CANONICAL_URL}" />\n    ` +
+    `<link rel="canonical" href="${CANONICAL_URL}" />`,
   'og:type',
 )
 home = home.replace('</head>', `  ${homeLd}\n  </head>`)
@@ -367,7 +371,7 @@ const entries = [{ path: '', file: 'src/pages/Home.tsx' }, ...routes]
 const urls = []
 for (const entry of entries) {
   const lastmod = await lastModified(entry.file)
-  const loc = `${SITE_URL}${entry.path}${entry.path ? '/' : ''}`
+  const loc = `${CANONICAL_URL}${entry.path}${entry.path ? '/' : ''}`
   urls.push(
     `  <url><loc>${loc}</loc>${lastmod ? `<lastmod>${lastmod}</lastmod>` : ''}</url>`,
   )
@@ -381,21 +385,22 @@ await writeFile(
 )
 
 /*
- * The Robots Exclusion Protocol reads this file only at the origin root, so
- * whether the Sitemap: line below is worth anything depends on which target
- * site.config.mjs built for.
+ * Crawling stays allowed on both builds — the mirror has to be readable for its
+ * canonical to be believed, and a page nobody may fetch is a canonical nobody
+ * reads. What the mirror does not do is advertise the sitemap.
  *
- * On the custom domain, base is '/' and this lands at the root, so the line
- * does give Google sitemap auto-discovery. On the GitHub Pages fallback it
- * lands at /learn-tajweed/robots.txt — that root belongs to the account, not
- * to this repository — and the line is then ignored by Google, though Bing and
- * some others do read the path. Submitting the sitemap once in Search Console
- * is what actually guarantees it either way; a missing robots.txt means
- * allow-all regardless, so writing it costs nothing.
+ * The Robots Exclusion Protocol reads this file only at the origin root. On the
+ * canonical build that is where it lands, so the Sitemap: line gives Google
+ * real auto-discovery. From the mirror the same line would name URLs on another
+ * host, served from a path Google does not read robots.txt at anyway — an
+ * invitation to be misread, in exchange for nothing. Submitting the sitemap
+ * once in Search Console is what actually guarantees it; a missing robots.txt
+ * means allow-all regardless, so writing this costs nothing either way.
  */
 await writeFile(
   resolve(DIST, 'robots.txt'),
-  `User-agent: *\nAllow: /\n\nSitemap: ${SITE_URL}sitemap.xml\n`,
+  `User-agent: *\nAllow: /\n` +
+    (IS_CANONICAL ? `\nSitemap: ${CANONICAL_URL}sitemap.xml\n` : ''),
   'utf8',
 )
 

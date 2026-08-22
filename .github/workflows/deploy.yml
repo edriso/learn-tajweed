@@ -32,15 +32,46 @@ jobs:
           cache: npm
       - run: npm ci
 
-      # Verifies the Qur'anic text, type-checks, and builds. Any mismatch
-      # between a lesson and the mushaf fails here and nothing is published.
-      - run: npm run build
+      # The guide is published at two addresses, so it is built twice. See the
+      # header of site.config.mjs for why the second one exists at all: GitHub
+      # 301s this repository's own Pages URL to the custom domain and cannot be
+      # told not to, so without a second repository the domain lapsing would
+      # take every address down at once.
+      #
+      # Verification lives in the build itself — any mismatch between a lesson
+      # and the mushaf fails here, before either address is touched.
+      - name: Build for dartajweed.com
+        run: SITE_TARGET=domain npm run build
+
+      - name: Set the domain build aside
+        run: |
+          mv dist dist-domain
+          # The mirror publishes from a branch, and branch-based Pages *does*
+          # read CNAME — unlike the Actions deploy below, which ignores it.
+          # Every push to the mirror is a force-push, so a missing CNAME here
+          # would silently drop the custom domain on the next deploy.
+          echo 'dartajweed.com' > dist-domain/CNAME
+          # Branch-based Pages runs Jekyll, which skips anything beginning with
+          # an underscore. Nothing in the build starts with one today; this
+          # makes sure that stays true by accident rather than by luck.
+          touch dist-domain/.nojekyll
+
+      - name: Build for edriso.github.io/learn-tajweed/
+        run: SITE_TARGET=pages npm run build
 
       - run: npm run lint
 
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist-domain
+          path: dist-domain
+          # .nojekyll is hidden, and v4 drops hidden files by default.
+          include-hidden-files: true
+          retention-days: 1
 
   deploy:
     needs: build
@@ -51,3 +82,40 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+
+  # Publishes the domain build to edriso/dartajweed, which holds no source —
+  # only the built site, replaced wholesale on every deploy. It needs nothing
+  # from this repository's token, and gets nothing.
+  mirror:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist-domain
+          path: dist-domain
+
+      - name: Push the built site to edriso/dartajweed
+        env:
+          # An SSH deploy key that can write to edriso/dartajweed and nothing
+          # else. A personal access token would carry the whole account.
+          DEPLOY_KEY: ${{ secrets.MIRROR_DEPLOY_KEY }}
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          printf '%s\n' "$DEPLOY_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -t ed25519 github.com >> ~/.ssh/known_hosts 2>/dev/null
+          export GIT_SSH_COMMAND='ssh -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes'
+
+          # A fresh single-commit history every time, force-pushed. The mirror
+          # is output, not source: there is no history there worth keeping, and
+          # this stops the repository growing without bound.
+          cd dist-domain
+          git init -q -b main
+          git add -A
+          git -c user.name='github-actions[bot]' \
+              -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
+              commit -qm "Built from ${GITHUB_SHA}"
+          git push -f git@github.com:edriso/dartajweed.git main
