@@ -118,14 +118,36 @@ the field so it can be checked.
 
 ## Deployment
 
-### Forking this: what you have to do
+### Forking this
 
-Nothing. Fork it, turn on GitHub Pages (Settings → Pages → Source: **GitHub Actions**),
-and push. The workflow works out your address from your repository name, so your copy
-builds for `https://<your-username>.github.io/<your-repo>/` without you editing a file.
+**To get it deployed: nothing.** Fork it, turn on GitHub Pages (Settings → Pages →
+Source: **GitHub Actions**), and push. The workflow works out your address from your
+repository name, so your copy builds and deploys to
+`https://<your-username>.github.io/<your-repo>/` without you editing a single file.
+`site.config.mjs` needs no changes, and no URL in the build points at the original site.
 
-You do **not** need to change `site.config.mjs`, and no part of this repository points a
-fork at the original site.
+**Three things still carry our details, and they are not automatic:**
+
+| What | Where | Why it matters |
+| --- | --- | --- |
+| The share card image | `public/og.png` | The address is **printed into the picture**. Until you regenerate it, every WhatsApp or Telegram preview of your site shows ours. |
+| The "found a mistake?" link | `src/content/pages/about.md` | Sends your readers' bug reports to our issue tracker. |
+| The copyright line | `LICENSE` | 0BSD lets you keep it, but you probably want your own name. |
+
+Regenerating the card needs Chrome and your own address:
+
+```bash
+SITE_URL=https://your-site.example/ npm run og
+# not on macOS? point CHROME_PATH at your browser first:
+CHROME_PATH=/usr/bin/google-chrome SITE_URL=https://your-site.example/ npm run og
+```
+
+The footer's GitHub link needs no attention — it is derived from your repository at build
+time, so it already points at your fork.
+
+You may also want to change `name` in `package.json`, and the localStorage keys in
+`src/hooks/` if you will host more than one copy under the same `github.io` account,
+since browser storage is shared per origin rather than per path.
 
 ### How it works
 

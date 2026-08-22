@@ -32,6 +32,38 @@
  * .github/workflows/deploy.yml, and the deployment section of README.md.
  */
 
+import { execFileSync } from 'node:child_process'
+
+/**
+ * The repository this copy came from, for the «ساهِم في تحسينه» link in the
+ * footer. Derived, because a fork whose footer sent its own readers to somebody
+ * else's repository would be sending its bug reports there too.
+ *
+ * GITHUB_REPOSITORY covers every CI build. Outside CI it reads the git remote,
+ * which any clone has. If neither works — a downloaded tarball, say — it is
+ * empty and the footer omits the link rather than offering a broken one.
+ */
+function repoUrl() {
+  if (process.env.REPO_URL) return process.env.REPO_URL
+  if (process.env.GITHUB_REPOSITORY) {
+    return `https://github.com/${process.env.GITHUB_REPOSITORY}`
+  }
+  try {
+    const remote = execFileSync('git', ['config', '--get', 'remote.origin.url'], {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    }).trim()
+    // Both forms: git@github.com:owner/repo.git and https://github.com/owner/repo
+    const match = remote.match(/github\.com[:/]([^/\s]+\/[^/\s]+?)(?:\.git)?$/)
+    return match ? `https://github.com/${match[1]}` : ''
+  } catch {
+    return ''
+  }
+}
+
+/** Where this copy's source lives, or '' if it cannot be worked out. */
+export const REPO_URL = repoUrl()
+
 /** Split a full URL into the origin and the path Vite needs as `base`. */
 function split(url, label) {
   let parsed

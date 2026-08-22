@@ -43,15 +43,19 @@ export function Footer() {
               اقرأ عن المصادر
             </Link>
           </p>
-          <a
-            href={REPO_URL}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-2 transition hover:text-ink-900 dark:hover:text-ink-50"
-          >
-            <GitHubIcon size={16} />
-            ساهِم في تحسينه
-          </a>
+          {/* Omitted rather than broken: REPO_URL is derived, and a copy built
+              outside both CI and a git clone has nothing to point at. */}
+          {REPO_URL && (
+            <a
+              href={REPO_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 transition hover:text-ink-900 dark:hover:text-ink-50"
+            >
+              <GitHubIcon size={16} />
+              ساهِم في تحسينه
+            </a>
+          )}
         </div>
       </div>
     </footer>

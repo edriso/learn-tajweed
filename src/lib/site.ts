@@ -2,7 +2,14 @@
 
 export const SITE_NAME = 'تعلَّم التجويد'
 
-export const REPO_URL = 'https://github.com/edriso/learn-tajweed'
+/**
+ * Where this copy's source lives. Worked out at build time from the repository
+ * itself — never written down — so a fork's footer sends its readers to the
+ * fork. Empty when it cannot be determined, and the footer then shows no link.
+ * See `repoUrl()` in site.config.mjs and `define` in vite.config.ts.
+ */
+declare const __REPO_URL__: string
+export const REPO_URL = __REPO_URL__
 
 /**
  * The recitation this guide teaches.
