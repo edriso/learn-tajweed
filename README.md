@@ -118,31 +118,61 @@ the field so it can be checked.
 
 ## Deployment
 
-Every push to `main` runs the workflow in `.github/workflows/deploy.yml`, which verifies
-the text and then builds the site **twice**, publishing it at two addresses:
+### Forking this: what you have to do
 
-| Address | Served from | Role |
+Nothing. Fork it, turn on GitHub Pages (Settings → Pages → Source: **GitHub Actions**),
+and push. The workflow works out your address from your repository name, so your copy
+builds for `https://<your-username>.github.io/<your-repo>/` without you editing a file.
+
+You do **not** need to change `site.config.mjs`, and no part of this repository points a
+fork at the original site.
+
+### How it works
+
+Every push to `main` runs `.github/workflows/deploy.yml`. It verifies the Qur'anic text,
+builds the site, and publishes it to GitHub Pages. Two environment variables control the
+addresses, and both have sensible defaults:
+
+| Variable | What it means | Default |
 | --- | --- | --- |
-| [dartajweed.com](https://dartajweed.com/) | `edriso/dartajweed` | The address to give people |
-| [edriso.github.io/learn-tajweed](https://edriso.github.io/learn-tajweed/) | this repository | Reachable if the domain lapses |
+| `SITE_URL` | Where this build is **served from**. Assets, links and fonts resolve against it. | `https://<owner>.github.io/<repo>/` |
+| `SITE_CANONICAL` | The address this build **says it is**, in canonical tags and the sitemap. | the same as `SITE_URL` |
 
-The second exists because GitHub Pages 301s a repository's own Pages URL to its custom
-domain, with no way to turn that off — so once the domain was attached, the github.io
-address stopped being a fallback and became a signpost to the domain. Both would go dark
-together if the domain expired. `edriso/dartajweed` holds no source, only the built
-site, force-pushed by the `mirror` job over an SSH deploy key scoped to that one
-repository.
-
-Both builds serve their own assets and claim the *same* canonical, `dartajweed.com`, so
-the two sites never compete in search. Where the site lives is
-[`site.config.mjs`](./site.config.mjs) and nowhere else — `base` in `vite.config.ts`, the
-icon and manifest links in `index.html`, every canonical, Open Graph, JSON-LD and sitemap
-URL, and the address on the share card all read it.
+They are only different when one site is published at two addresses. To build a copy
+locally for a specific address:
 
 ```bash
-SITE_TARGET=domain npm run build   # what dartajweed.com serves (the default)
-SITE_TARGET=pages  npm run build   # what this repository's own Pages site serves
+SITE_URL=https://example.com/ npm run build
 ```
+
+### Publishing at a second address (optional)
+
+This repository publishes twice, at [dartajweed.com](https://dartajweed.com/) and at
+[edriso.github.io/learn-tajweed](https://edriso.github.io/learn-tajweed/). The reason is
+worth knowing before you copy it: **GitHub Pages redirects a repository's own Pages URL
+to its custom domain, and there is no setting to stop it.** So attaching a domain does
+not leave the github.io address as a spare — it turns it into a sign pointing at the
+domain, and if the domain ever expires both addresses break at once. Publishing the same
+files to a second repository is the only way to keep an address that does not depend on
+the domain being paid for.
+
+To set that up, add these in Settings → Secrets and variables → Actions:
+
+| Name | Kind | Example |
+| --- | --- | --- |
+| `MIRROR_REPO` | Variable | `edriso/dartajweed` |
+| `SITE_URL` | Variable | `https://dartajweed.com/` |
+| `MIRROR_DEPLOY_KEY` | Secret | private half of an SSH deploy key with write access to `MIRROR_REPO` |
+
+**Leave `MIRROR_REPO` unset and the whole second half is skipped** — the `mirror` job
+never runs, so a fork never sees a failed deploy. The mirror repository holds no source,
+only the built site, replaced on every deploy. Its build writes a `CNAME` file, because
+branch-based Pages reads that file where `actions/deploy-pages` ignores it, and every
+mirror push replaces everything.
+
+Both copies claim the same canonical address, so two sites with identical text never
+compete in search, and each serves its own `og:image` so link previews keep working even
+if the other address is down.
 
 ## Licence
 

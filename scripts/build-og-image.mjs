@@ -22,7 +22,7 @@ import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { SITE_LABEL } from '../site.config.mjs'
+import { IS_LOCAL, SITE_LABEL } from '../site.config.mjs'
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const CORPUS = resolve(ROOT, 'data/quran-uthmani.txt')
@@ -100,6 +100,19 @@ h1 .accent{color:#216342}
     <p class="url">${SITE_LABEL}</p>
   </div>
 </div></body></html>`
+}
+
+/*
+ * The card is committed to the repository and shown to everyone who shares a
+ * link, and it has the site's address printed on it. Outside CI there is no
+ * published address to read, so site.config.mjs falls back to localhost —
+ * which would be baked into the PNG and quietly shipped. Ask for the real one.
+ */
+if (IS_LOCAL) {
+  throw new Error(
+    `og: لا يُعرف عنوان الموقع خارج CI، فلا تُبنى البطاقة بعنوان localhost.\n` +
+      `  شغّلها هكذا: SITE_URL=https://example.com/ npm run og`,
+  )
 }
 
 const verse = await verseFromCorpus()

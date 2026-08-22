@@ -1,5 +1,9 @@
 name: Deploy to GitHub Pages
 
+# Works in a fork with no configuration. The address is worked out from the
+# repository name, and the `mirror` job below is skipped unless you have asked
+# for it. Nothing here needs editing to make your own copy deploy.
+
 on:
   push:
     branches: [main]
@@ -32,32 +36,48 @@ jobs:
           cache: npm
       - run: npm ci
 
-      # The guide is published at two addresses, so it is built twice. See the
-      # header of site.config.mjs for why the second one exists at all: GitHub
-      # 301s this repository's own Pages URL to the custom domain and cannot be
-      # told not to, so without a second repository the domain lapsing would
-      # take every address down at once.
+      # Optional. Set these in Settings -> Secrets and variables -> Actions ->
+      # Variables only if you publish at a second address, such as a custom
+      # domain. Leave them unset and everything below still works.
       #
-      # Verification lives in the build itself — any mismatch between a lesson
-      # and the mushaf fails here, before either address is touched.
-      - name: Build for dartajweed.com
-        run: SITE_TARGET=domain npm run build
-
-      - name: Set the domain build aside
+      #   MIRROR_REPO  owner/repo to publish the second copy to, e.g. edriso/dartajweed
+      #   SITE_URL     the address that copy is served at, e.g. https://example.com/
+      - name: Work out the addresses to build for
+        env:
+          MIRROR_REPO: ${{ vars.MIRROR_REPO }}
+          MIRROR_SITE_URL: ${{ vars.SITE_URL }}
         run: |
-          mv dist dist-domain
-          # The mirror publishes from a branch, and branch-based Pages *does*
-          # read CNAME — unlike the Actions deploy below, which ignores it.
-          # Every push to the mirror is a force-push, so a missing CNAME here
-          # would silently drop the custom domain on the next deploy.
-          echo 'dartajweed.com' > dist-domain/CNAME
-          # Branch-based Pages runs Jekyll, which skips anything beginning with
-          # an underscore. Nothing in the build starts with one today; this
-          # makes sure that stays true by accident rather than by luck.
-          touch dist-domain/.nojekyll
+          set -euo pipefail
+          owner=${GITHUB_REPOSITORY%%/*}
+          repo=${GITHUB_REPOSITORY#*/}
+          owner=$(echo "$owner" | tr '[:upper:]' '[:lower:]')
+          # A repository named <owner>.github.io is served at the host root.
+          if [ "$(echo "$repo" | tr '[:upper:]' '[:lower:]')" = "$owner.github.io" ]; then
+            own="https://$owner.github.io/"
+          else
+            own="https://$owner.github.io/$repo/"
+          fi
+          echo "OWN_SITE_URL=$own" >> "$GITHUB_ENV"
 
-      - name: Build for edriso.github.io/learn-tajweed/
-        run: SITE_TARGET=pages npm run build
+          if [ -n "$MIRROR_REPO" ] && [ -z "$MIRROR_SITE_URL" ]; then
+            echo "::error::MIRROR_REPO is set but the SITE_URL variable is not." \
+                 "Set SITE_URL to the address the mirror is served at, e.g. https://example.com/"
+            exit 1
+          fi
+
+          # Both copies claim the same address so they never compete in search.
+          # With no mirror configured this is empty, and each build claims itself.
+          echo "CANONICAL=${MIRROR_SITE_URL}" >> "$GITHUB_ENV"
+          echo "Own Pages address : $own"
+          echo "Mirror address    : ${MIRROR_SITE_URL:-(none)}"
+
+      # Verification lives in the build itself: any mismatch between a lesson
+      # and the mushaf fails here, before any address is touched.
+      - name: Build this repository's own Pages site
+        env:
+          SITE_URL: ${{ env.OWN_SITE_URL }}
+          SITE_CANONICAL: ${{ env.CANONICAL }}
+        run: npm run build
 
       - run: npm run lint
 
@@ -65,10 +85,33 @@ jobs:
         with:
           path: dist
 
+      - name: Build the second copy
+        if: ${{ vars.MIRROR_REPO != '' }}
+        env:
+          SITE_URL: ${{ vars.SITE_URL }}
+        run: |
+          set -euo pipefail
+          rm -rf dist
+          npm run build
+          mv dist dist-mirror
+
+          # The mirror publishes from a branch, and branch-based Pages *does*
+          # read CNAME, unlike actions/deploy-pages above which ignores it.
+          # Every push to the mirror replaces it wholesale, so without this file
+          # the custom domain would be dropped on the next deploy.
+          echo "$SITE_URL" | sed -E 's#^https?://##; s#/.*$##' > dist-mirror/CNAME
+
+          # Branch-based Pages runs the build through Jekyll, which ignores any
+          # file or folder whose name starts with an underscore. Nothing is
+          # named that way today, and .nojekyll means nothing ever has to be:
+          # it turns Jekyll off rather than relying on that staying true.
+          touch dist-mirror/.nojekyll
+
       - uses: actions/upload-artifact@v4
+        if: ${{ vars.MIRROR_REPO != '' }}
         with:
-          name: dist-domain
-          path: dist-domain
+          name: dist-mirror
+          path: dist-mirror
           # .nojekyll is hidden, and v4 drops hidden files by default.
           include-hidden-files: true
           retention-days: 1
@@ -83,26 +126,36 @@ jobs:
       - id: deployment
         uses: actions/deploy-pages@v4
 
-  # Publishes the domain build to edriso/dartajweed, which holds no source —
-  # only the built site, replaced wholesale on every deploy. It needs nothing
-  # from this repository's token, and gets nothing.
+  # Publishes a second copy to another repository, which holds no source — only
+  # the built site, replaced wholesale each deploy.
+  #
+  # Skipped entirely unless MIRROR_REPO is set, so a fork never sees it fail.
+  # The condition has to read `vars` rather than `secrets`, because the secrets
+  # context is not available in a job-level `if`.
   mirror:
     needs: build
+    if: ${{ vars.MIRROR_REPO != '' }}
     runs-on: ubuntu-latest
     permissions: {}
     steps:
       - uses: actions/download-artifact@v4
         with:
-          name: dist-domain
-          path: dist-domain
+          name: dist-mirror
+          path: dist-mirror
 
-      - name: Push the built site to edriso/dartajweed
+      - name: Push the built site to the mirror repository
         env:
-          # An SSH deploy key that can write to edriso/dartajweed and nothing
-          # else. A personal access token would carry the whole account.
+          MIRROR_REPO: ${{ vars.MIRROR_REPO }}
+          # An SSH deploy key with write access to that one repository. A
+          # personal access token would carry the whole account instead.
           DEPLOY_KEY: ${{ secrets.MIRROR_DEPLOY_KEY }}
         run: |
           set -euo pipefail
+          if [ -z "$DEPLOY_KEY" ]; then
+            echo "::error::MIRROR_REPO is set but the MIRROR_DEPLOY_KEY secret is missing." \
+                 "Add the private half of a deploy key that can write to $MIRROR_REPO."
+            exit 1
+          fi
           mkdir -p ~/.ssh
           printf '%s\n' "$DEPLOY_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
@@ -112,10 +165,10 @@ jobs:
           # A fresh single-commit history every time, force-pushed. The mirror
           # is output, not source: there is no history there worth keeping, and
           # this stops the repository growing without bound.
-          cd dist-domain
+          cd dist-mirror
           git init -q -b main
           git add -A
           git -c user.name='github-actions[bot]' \
               -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
               commit -qm "Built from ${GITHUB_SHA}"
-          git push -f git@github.com:edriso/dartajweed.git main
+          git push -f "git@github.com:${MIRROR_REPO}.git" main

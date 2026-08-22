@@ -408,3 +408,8 @@ console.log(
   `✓ Pre-rendered ${routes.length} routes plus the 404 fallback: own title, canonical, ` +
     `JSON-LD and font preloads. Wrote sitemap.xml and robots.txt.`,
 )
+// Printed because these are the two things that silently ruin a deploy: a build
+// served from one address while claiming another shows a working site whose
+// every canonical points somewhere else, and nothing else reports it.
+console.log(`  served from : ${SITE_URL}`)
+console.log(`  claims to be: ${CANONICAL_URL}${IS_CANONICAL ? '' : '  (this copy is not the canonical one)'}`)

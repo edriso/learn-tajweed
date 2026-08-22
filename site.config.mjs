@@ -1,76 +1,99 @@
 /**
- * Where the site lives. The one place that knows it.
+ * Where this build is served, and which address it claims to be.
  *
- * The guide is published twice, from this one repository:
+ * Nothing here is hardcoded to one person's site. Fork this repository, enable
+ * GitHub Pages, push — and it builds correctly for *your* address with no
+ * configuration at all, because the default is worked out from the repository
+ * name at build time.
  *
- *   dartajweed.com                    the address to give people
- *   edriso.github.io/learn-tajweed/   the same build, always reachable
+ * Two optional environment variables, both full URLs ending in a slash:
  *
- * The second exists because GitHub Pages 301s a repository's own Pages URL to
- * its custom domain and offers no way to turn that off — so once the domain was
- * attached, the github.io address stopped being a fallback and became a
- * signpost to the domain. If the domain ever lapses, both would go dark
- * together. A second repository serving the same output is the only way to have
- * an address that does not depend on the domain being paid for.
+ *   SITE_URL        Where this build is actually served from. Assets, the
+ *                   router and the fonts all resolve against it, so if it is
+ *                   wrong the page loads and then nothing else does.
+ *                   Default: https://<owner>.github.io/<repo>/
  *
- * `deploy.yml` therefore builds twice: once for each. The mirror repository
- * (edriso/dartajweed) holds no source, only the built site, force-pushed on
- * every deploy — see the `mirror` job there.
+ *   SITE_CANONICAL  The address this build claims in its canonical tags,
+ *                   sitemap and JSON-LD. Only differs from SITE_URL when the
+ *                   same site is published at two addresses and one of them is
+ *                   the address people should be given.
+ *                   Default: the same as SITE_URL.
  *
- * Two different things are needed and they are not the same thing:
+ * This repository publishes twice, which is why the second one exists at all.
+ * GitHub Pages sends a 301 from a repository's own Pages URL to its custom
+ * domain and gives you no way to switch that off — so once dartajweed.com was
+ * attached, edriso.github.io/learn-tajweed/ stopped being a fallback and became
+ * a sign pointing at the domain. If the domain ever expired, both addresses
+ * would break at once. A second repository serving the same files is the only
+ * way to keep an address that does not depend on the domain being paid for.
  *
- * - `base` and `SITE_URL` are where a build is *served* from. Assets, the
- *   router's basename and the fonts all resolve against these, so they must
- *   describe the actual address or nothing loads.
- * - `CANONICAL_URL` is the address the guide *claims*, and it is dartajweed.com
- *   for both builds. Two sites serving identical text would otherwise compete
- *   in search, and Google would pick one — possibly the ugly one. Pointing the
- *   mirror's canonicals at the domain makes it a working fallback that does not
- *   split the ranking of the address people are actually given.
- *
- * `base` is a path, always with both slashes ('/' or '/repo/'), because Vite
- * requires that and everything downstream concatenates rather than joins.
+ * Both builds therefore claim dartajweed.com, so two copies of identical text
+ * never compete with each other in Google. See the `mirror` job in
+ * .github/workflows/deploy.yml, and the deployment section of README.md.
  */
 
-/** The published address of the guide. Every canonical claims this one. */
-const CANONICAL = 'https://dartajweed.com/'
-
-const TARGETS = {
-  /** The custom domain, served from the edriso/dartajweed mirror. */
-  domain: { origin: 'https://dartajweed.com', base: '/' },
-  /** This repository's own Pages site, which the domain cannot take down. */
-  pages: { origin: 'https://edriso.github.io', base: '/learn-tajweed/' },
+/** Split a full URL into the origin and the path Vite needs as `base`. */
+function split(url, label) {
+  let parsed
+  try {
+    parsed = new URL(url)
+  } catch {
+    throw new Error(
+      `site.config: ${label}=«${url}» ليس رابطًا صالحًا. ` +
+        `المتوقَّع رابطٌ كاملٌ ينتهي بشرطةٍ مائلة، مثل https://example.com/`,
+    )
+  }
+  // Vite requires both slashes on `base`, and everything downstream joins by
+  // concatenating rather than by resolving, so the trailing one is not optional.
+  const base = parsed.pathname.endsWith('/') ? parsed.pathname : `${parsed.pathname}/`
+  return { origin: parsed.origin, base, href: `${parsed.origin}${base}` }
 }
-
-const name = process.env.SITE_TARGET ?? 'domain'
-const target = TARGETS[name]
-
-if (!target) {
-  throw new Error(
-    `site.config: SITE_TARGET=«${name}» غير معروف. ` +
-      `المتاح: ${Object.keys(TARGETS).join('، ')}.`,
-  )
-}
-
-/** Path this build is served under, leading and trailing slash. `/` */
-export const BASE = target.base
-
-/** Absolute address this build is served at, with its slash. Assets use this. */
-export const SITE_URL = `${target.origin}${target.base}`
-
-/** Absolute address the guide claims, with its slash. Canonicals use this. */
-export const CANONICAL_URL = CANONICAL
 
 /**
- * True when this build is the one the canonicals point at. The mirror uses it
- * to hold back things only the primary address should advertise — a sitemap
- * naming URLs that live somewhere else would be asking to be misread.
+ * This repository's own GitHub Pages address, worked out from the repository
+ * itself. GITHUB_REPOSITORY is `owner/repo` and is set for every workflow run,
+ * so a fork gets its own correct address without editing anything.
+ *
+ * Outside CI there is no published address to know, so it falls back to
+ * localhost. That gives `base: '/'`, which is what the dev server needs, and it
+ * makes a local build obviously local rather than quietly claiming to be
+ * somebody's live site.
+ */
+function ownPagesUrl() {
+  const slug = process.env.GITHUB_REPOSITORY
+  if (!slug) return 'http://localhost:4173/'
+
+  const [owner, repo] = slug.split('/')
+  const host = `${owner.toLowerCase()}.github.io`
+  // A repository named <owner>.github.io is served at the host root, not under
+  // a path — the one case where the repository name is not part of the URL.
+  return repo.toLowerCase() === host ? `https://${host}/` : `https://${host}/${repo}/`
+}
+
+const served = split(process.env.SITE_URL || ownPagesUrl(), 'SITE_URL')
+const claimed = split(process.env.SITE_CANONICAL || served.href, 'SITE_CANONICAL')
+
+/** Path this build is served under, leading and trailing slash. `/` */
+export const BASE = served.base
+
+/** Full address this build is served at. Assets and og:image use this. */
+export const SITE_URL = served.href
+
+/** Full address this build claims. Canonicals, sitemap and JSON-LD use this. */
+export const CANONICAL_URL = claimed.href
+
+/**
+ * True when this build is the one the canonicals point at. A second copy uses
+ * it to hold back what only the real address should advertise — a sitemap
+ * naming URLs that live on another host is asking to be misread.
  */
 export const IS_CANONICAL = SITE_URL === CANONICAL_URL
 
+/** True when this is a local build, so nothing publishable is made from it. */
+export const IS_LOCAL = new URL(CANONICAL_URL).hostname === 'localhost'
+
 /**
- * The published address for a human to read: no scheme, no trailing slash.
- * This is what goes on the share card, where `https://` is noise. It is the
- * canonical address in both builds, because it is the one worth memorising.
+ * The claimed address written for a person to read: no scheme, no trailing
+ * slash. This goes on the share card, where `https://` is noise.
  */
-export const SITE_LABEL = CANONICAL_URL.replace(/^https:\/\//, '').replace(/\/$/, '')
+export const SITE_LABEL = CANONICAL_URL.replace(/^https?:\/\//, '').replace(/\/$/, '')

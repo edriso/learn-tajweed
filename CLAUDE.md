@@ -206,14 +206,27 @@ Decisions worth keeping:
   diacritics.
 - **Rule colours are a teaching aid, not part of the revelation.** Every colour is always
   accompanied by the rule's name in words, so the page works without colour.
-- **Where the site lives is `site.config.mjs`, and nowhere else.** GitHub Pages hosts
-  it; `dartajweed.com` is the address. Five things need to know that and each used to
-  hardcode it: `base` in `vite.config.ts` (which flows into the router through
-  `import.meta.env.BASE_URL`), the icon and manifest links in `index.html`, every
-  absolute URL written by `scripts/prerender-routes.mjs`, the address printed on the
-  share card by `scripts/build-og-image.mjs`, and `public/manifest.webmanifest`. A
-  disagreement between them does not fail the build — it ships a canonical pointing
-  somewhere the reader is not.
+- **No address is hardcoded anywhere, and that is a licence obligation, not tidiness.**
+  This repository is 0BSD so people can take it and run. A fork that inherited
+  `dartajweed.com` in its canonicals would tell Google the original is the real version
+  of the forker's own site — de-indexing them silently, in a repository that exists to be
+  copied. `site.config.mjs` therefore *derives* the address from `GITHUB_REPOSITORY` at
+  build time, so a fork is correct with zero configuration, and every deviation is an
+  environment variable (`SITE_URL`, `SITE_CANONICAL`) rather than an edit.
+
+  The same rule governs CI: the `mirror` job is gated on `vars.MIRROR_REPO`, so a fork
+  never inherits a job that fails for want of a secret it cannot have. If you add
+  anything to this pipeline, the test is **"what does a fork with no settings do?"** —
+  the answer has to be "the right thing, silently".
+
+- **Where the site lives is `site.config.mjs`, and nowhere else.** Five things need to
+  know the address and each used to hardcode it: `base` in `vite.config.ts` (which flows
+  into the router through `import.meta.env.BASE_URL`), the icon and manifest links in
+  `index.html`, every absolute URL written by `scripts/prerender-routes.mjs`, the address
+  printed on the share card by `scripts/build-og-image.mjs`, and
+  `public/manifest.webmanifest`. A disagreement between them does not fail the build — it
+  ships a canonical pointing somewhere the reader is not, which is why the prerender pass
+  now prints both the served and the claimed address on every build.
 
   Three of those now need no origin at all. `index.html` uses Vite's `%BASE_URL%`
   placeholder; the manifest uses paths relative to itself (`"./"`, `"./icon-192.png"`),
@@ -241,6 +254,11 @@ Decisions worth keeping:
   authenticates with an SSH deploy key scoped to that one repository, in
   `MIRROR_DEPLOY_KEY`; a personal access token would have carried the whole account.
 
+  All of it is configuration, not code: `MIRROR_REPO` and `SITE_URL` are repository
+  variables. The job's `if` reads `vars` rather than `secrets` because **the secrets
+  context is not available in a job-level `if`** — which is the whole mechanism by which
+  a fork skips this cleanly instead of failing.
+
   Three things there are load-bearing. The mirror's build **writes a `CNAME` file** —
   branch-based Pages reads it, unlike `actions/deploy-pages` which ignores it, and since
   every mirror push is a force-push, omitting it would silently drop the custom domain on
@@ -252,7 +270,8 @@ Decisions worth keeping:
   on another host, for nothing.
 
   If the domain does lapse, the mirror already works and needs no action. Repointing the
-  canonicals is then a one-line change to `CANONICAL` in `site.config.mjs`.
+  canonicals is then deleting the `SITE_URL` variable, which drops both builds back to
+  the derived github.io address — no code change at all.
 - **Deep links get a real 200.**
   `scripts/prerender-routes.mjs` writes a copy of `index.html` at every route,
   so a deep link answers 200 rather than the 404 a bare SPA fallback would give. It
